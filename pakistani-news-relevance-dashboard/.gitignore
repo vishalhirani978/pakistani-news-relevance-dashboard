@@ -1,0 +1,23 @@
+__pycache__/
+*.pyc
+*.pyo
+test_run_command.txt
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+data/raw/processed/database/
+
+# Downloaded data and generated files
+data/raw/images/
+data/raw/dawn_articles.csv
+data/raw/ummat_articles.csv
+data/raw/ummat_raw.json
+data/raw/translation_cache.json
+backend/data/
+
+# Environment files
+.env
+.env.local
+.env.*

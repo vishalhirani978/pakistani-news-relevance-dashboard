@@ -1,0 +1,266 @@
+==========================================================
+Pakistani News Relevance Dashboard
+Run Instructions
+==========================================================
+
+Project Overview
+----------------
+This project compares news articles from Dawn (English)
+and Daily Ummat (Urdu) using multimodal Artificial
+Intelligence.
+
+The system:
+
+• Scrapes news articles
+• Stores them in SQLite
+• Computes text similarity
+• Computes image similarity
+• Matches related articles
+• Displays results through a web dashboard
+
+==========================================================
+Technologies Used
+==========================================================
+
+Backend
+--------
+Python 3.10+
+FastAPI
+SQLite
+
+Machine Learning
+----------------
+Sentence Transformers
+OpenCV
+Pillow
+scikit-learn
+
+Frontend
+---------
+HTML
+CSS
+JavaScript
+Chart.js
+
+==========================================================
+Required Python Packages
+==========================================================
+
+Install all dependencies using:
+
+pip install -r requirements.txt
+
+If requirements.txt is unavailable, install:
+
+pip install fastapi
+pip install uvicorn
+pip install sentence-transformers
+pip install opencv-python
+pip install scikit-learn
+pip install beautifulsoup4
+pip install requests
+pip install pillow
+pip install numpy
+pip install deep-translator
+pip install pandas
+pip install schedule
+
+==========================================================
+Project Structure
+==========================================================
+
+backend/
+    main.py
+    crud.py
+    database.py
+    routers/
+
+data/
+    raw/
+        images/
+        processed/
+            database/
+                news.db
+
+ml_engine/
+
+scraper/
+
+frontend_UI/
+
+==========================================================
+Database
+==========================================================
+
+Database used:
+
+data/raw/processed/database/news.db
+
+The database already contains scraped articles and
+matched results.
+
+No additional setup is required.
+
+==========================================================
+Running the Backend
+==========================================================
+
+Open a terminal in the project directory.
+
+Run:
+
+uvicorn backend.main:app --reload
+
+Backend starts at:
+
+http://127.0.0.1:8000
+
+Swagger API documentation:
+
+http://127.0.0.1:8000/docs
+
+Available endpoints include:
+
+GET  /                  API status
+GET  /articles/        All articles
+GET  /articles/{id}    Single article by ID
+GET  /matches/         All matched pairs (sorted by relevance)
+GET  /statistics/      Dashboard KPIs
+GET  /live             Health check
+
+==========================================================
+Running the Frontend
+==========================================================
+
+Open another terminal.
+
+Navigate to the frontend folder.
+
+Run:
+
+python -m http.server 5500
+
+or
+
+python -m http.server 8001
+
+Open in browser:
+
+http://127.0.0.1:5500
+
+(or the displayed port)
+
+Ensure the backend is running before opening the frontend.
+
+==========================================================
+Machine Learning Models
+==========================================================
+
+Text Similarity
+
+Model:
+all-MiniLM-L6-v2
+
+Library:
+Sentence Transformers
+
+Similarity Metric:
+Cosine Similarity
+
+----------------------------------------------------------
+
+Image Similarity
+
+Method:
+Difference Hash (dhash) + HSV Histogram Correlation
+
+Library:
+OpenCV + Pillow
+
+Similarity Metric:
+50% Structural (dhash) + 50% Color (histogram)
+
+----------------------------------------------------------
+
+Final Relevance Score
+
+Score =
+
+0.65 × Text Similarity
+
++
+
+0.35 × Image Similarity
+
+==========================================================
+Matching Criteria
+==========================================================
+
+Articles are matched only when:
+
+Text Similarity ≥ 0.25
+
+Overall Score ≥ 0.30
+
+Match Levels
+
+High (≥ 0.50)
+
+Medium (≥ 0.38)
+
+Low (< 0.38)
+
+==========================================================
+Features
+==========================================================
+
+✔ Dawn article scraping
+
+✔ Daily Ummat article scraping
+
+✔ Image downloading
+
+✔ SQLite storage
+
+✔ Text preprocessing
+
+✔ Sentence embedding generation
+
+✔ Image embedding generation
+
+✔ Multimodal similarity scoring
+
+✔ Automatic article matching
+
+✔ Statistics API
+
+✔ Matches API
+
+✔ Interactive dashboard
+
+✔ Search and filtering
+
+✔ Charts and analytics
+
+==========================================================
+Team Roles
+==========================================================
+
+Data Engineer
+• Web scraping
+• Database
+• Data storage
+
+ML/NLP Engineer
+• Text similarity
+• Image similarity
+• Multimodal matching
+
+Frontend Engineer
+• Dashboard
+• Charts
+• User Interface
+
+==========================================================
+End of File
+==========================================================

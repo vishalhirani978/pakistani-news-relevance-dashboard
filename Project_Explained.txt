@@ -1,0 +1,1399 @@
+================================================================================
+  PAKISTANI NEWS RELEVANCE DASHBOARD — COMPLETE PROJECT EXPLANATION
+  University Semester Project — Data Science
+================================================================================
+
+  PROJECT TITLE:
+  Pakistani News Relevance Dashboard
+
+  PROJECT OVERVIEW:
+  This is an AI-powered multimodal news relevance analysis system. It scrapes
+  news articles from two major Pakistani news sources — Dawn (English-language)
+  and Daily Ummat (Urdu-language) — and uses a combination of Natural Language
+  Processing (NLP) and Computer Vision techniques to find and rank articles that
+  cover the same real-world events. The results are displayed through an
+  interactive web-based dashboard with KPIs, charts, filters, and a sortable
+  table.
+
+  The system is divided into three major engineering roles:
+    1. Data Engineer   — Web scraping, data storage, database, backend API
+    2. ML/NLP Engineer — Text similarity, image similarity, matching pipeline
+    3. Frontend Engineer — Dashboard UI, charts, interactivity, visual effects
+
+  Each role has its own dedicated Git branch (data-engineer, ml-nlp-engineer,
+  frontend-engineer) and the project is hosted on GitHub at:
+  https://github.com/Jami436/pakistani-news-relevance-dashboard
+
+================================================================================
+  PROJECT STRUCTURE (DIRECTORY TREE)
+================================================================================
+
+  pakistani-news-relevance-dashboard/
+  |
+  |-- .gitignore                    # Git ignore rules
+  |-- readme.md                     # Project documentation
+  |-- requirements.txt              # Python dependencies list
+  |-- RUN_PROJECT.txt               # Setup and run instructions
+  |
+  |-- backend/                      # FASTAPI BACKEND
+  |   |-- __init__.py
+  |   |-- main.py                   # FastAPI app entry point
+  |   |-- database.py               # SQLite database schema
+  |   |-- crud.py                   # Database CRUD operations
+  |   |-- schemas.py                # Pydantic data validation models
+  |   |-- routers/
+  |       |-- __init__.py
+  |       |-- articles.py           # GET /articles endpoints
+  |       |-- matches.py            # GET /matches/ endpoint
+  |       |-- statistics.py         # GET /statistics/ endpoint
+  |       |-- live.py               # GET /live health-check endpoint
+  |
+  |-- ml_engine/                    # MACHINE LEARNING ENGINE
+  |   |-- __init__.py
+  |   |-- preprocessing.py          # Text cleaning (lowercase, remove punct)
+  |   |-- text_similarity.py        # Sentence Transformers + Cosine Similarity
+  |   |-- image_similarity.py       # dhash + HSV Histogram image comparison
+  |   |-- scoring.py                # Weighted multimodal relevance scoring
+  |   |-- matcher.py                # Full article matching pipeline
+  |
+  |-- scraper/                      # WEB SCRAPERS
+  |   |-- __init__.py
+  |   |-- dawn_scraper.py           # Dawn News (English) scraper
+  |   |-- ummat_scraper.py          # Daily Ummat (Urdu) scraper
+  |   |-- utils.py                  # Translation, image download, caching
+  |   |-- scheduler.py              # Scheduled scraping every 6 hours
+  |   |-- dawn_homepage.html        # Dawn homepage HTML snapshot (reference)
+  |
+  |-- frontend_UI/                  # FRONTEND DASHBOARD
+  |   |-- index.html                # Main dashboard HTML page
+  |   |-- styles.css                # Complete design system (984 lines)
+  |   |-- app.js                    # Application logic (1042 lines)
+  |   |-- data.js                   # Mock data for offline/development mode
+  |   |-- logo.png                  # Dashboard logo
+  |   |-- components/ui/
+  |       |-- be-ui-tilt-card.tsx       # 3D tilt card React component
+  |       |-- demo.tsx                  # Component demos
+  |       |-- flow-field-background.tsx # Animated particle flow field
+  |       |-- spotlight-card.tsx        # Spotlight glow card component
+  |
+  |-- tests/                        # UNIT TESTS
+  |   |-- __init__.py
+  |   |-- test_scraper.py           # DB connection test
+  |   |-- test_crud.py              # CRUD operations test
+  |   |-- test_api.py               # (empty - placeholder)
+  |   |-- test_scoring.py           # (empty - placeholder)
+  |
+  |-- data/                         # DATA STORAGE
+  |   |-- raw/
+  |       |-- dawn_articles.csv         # 434 Dawn articles (CSV export)
+  |       |-- ummat_articles.csv        # 895 Ummat articles (CSV export)
+  |       |-- ummat_raw.json            # 6002 raw Ummat articles (Urdu)
+  |       |-- translation_cache.json    # Urdu->English translation cache
+  |       |-- processed/database/
+  |       |   |-- news.db              # SQLite database
+  |       |-- images/                   # ~1120+ downloaded article images
+  |
+  |-- docs/                          # DOCUMENTATION
+  |   |-- architecture.png
+  |   |-- presentation.pptx
+  |   |-- project_report.docx
+  |
+  |-- run_full_scraper.py           # Full pipeline: scrape + match
+  |-- rematch.py                    # Clear & re-run matching engine
+  |-- sqltest.py                    # Create unique index on matches table
+  |
+  |-- test_db.py                    # Manual DB test script
+  |-- test_crud.py                  # Manual CRUD test script
+  |-- test_image_similarity.py      # Manual image similarity test
+  |-- test_text_similarity.py       # Manual text similarity test
+  |-- test_scoring.py               # Manual scoring test
+  |-- test_preprocessing.py         # Manual preprocessing test
+  |-- test_matcher.py               # Manual matcher test
+
+
+================================================================================
+  TECHNOLOGY STACK
+================================================================================
+
+  Backend:
+    - Python 3.10+
+    - FastAPI (modern async web framework)
+    - Uvicorn (ASGI server)
+    - SQLite (lightweight embedded database)
+    - Pandas (data export to CSV)
+
+  Machine Learning / NLP:
+    - Sentence Transformers (text embeddings)
+    - all-MiniLM-L6-v2 model (384-dimensional sentence embeddings)
+    - scikit-learn (cosine similarity computation)
+    - OpenCV (image processing, HSV histograms)
+    - Pillow / PIL (image loading, dhash computation)
+    - NumPy (matrix operations)
+    - PyTorch / torchvision (Sentence Transformers backend)
+
+  Scraping:
+    - requests (HTTP client)
+    - BeautifulSoup4 (HTML parsing)
+    - deep-translator (Google Translate API wrapper)
+    - schedule (periodic task scheduling)
+    - ThreadPoolExecutor (parallel downloads)
+
+  Frontend:
+    - HTML5
+    - CSS3 (custom properties, grid, flexbox, animations)
+    - Vanilla JavaScript (ES6+)
+    - Chart.js (interactive charts)
+    - Lucide Icons (SVG icon library)
+    - Google Fonts (Inter typeface)
+    - Canvas API (particle background animation)
+    - CSS 3D Transforms (tilt card effects)
+
+  Data Formats:
+    - SQLite database (.db)
+    - CSV (article metadata exports)
+    - JSON (raw Ummat data, translation cache)
+    - WebP (downloaded article images)
+
+================================================================================
+  REQUIREMENTS (requirements.txt)
+================================================================================
+
+  fastapi                     # Web framework for REST API
+  uvicorn[standard]           # ASGI server
+  sentence-transformers       # Text embedding models
+  scikit-learn                # Cosine similarity, ML utilities
+  opencv-python               # Image processing (HSV histograms)
+  Pillow                      # Image loading and dhash computation
+  torch                       # PyTorch (Sentence Transformers backend)
+  torchvision                 # Torch vision utilities
+  beautifulsoup4              # HTML parsing for web scraping
+  requests                    # HTTP client
+  numpy                       # Numerical computation
+  deep-translator             # Google Translate API
+  pandas                      # Data manipulation and CSV export
+  schedule                    # Periodic task scheduling
+
+
+================================================================================
+================================================================================
+  PART 1: DATA ENGINEER'S WORK
+================================================================================
+================================================================================
+
+  1.1 RESPONSIBILITIES (as defined in the project)
+  ------------------------------------------------
+  The Data Engineer is responsible for:
+  - Web scraping news articles from Dawn (English) and Daily Ummat (Urdu)
+  - Storing raw and processed data in appropriate formats (SQLite, CSV, JSON)
+  - Downloading and organizing article images
+  - Translating Urdu headlines to English with caching
+  - Building and maintaining the Backend REST API (FastAPI)
+  - Exposing data through CRUD operations and API endpoints
+  - Scheduling periodic data collection
+
+
+  1.2 WEB SCRAPING
+  -----------------
+
+  1.2.1 Dawn Scraper (scraper/dawn_scraper.py)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  File: scraper/dawn_scraper.py — 133 lines
+
+  WHAT IT DOES:
+  Scrapes news articles from Dawn.com across 9 different sections:
+    1. latest-news
+    2. pakistan
+    3. business
+    4. world
+    5. sport
+    6. tech
+    7. opinion
+    8. culture
+    9. prism
+
+  For each section, it scrapes up to 10 pages of content.
+
+  HOW IT WORKS (step by step):
+  a) For each section, iterate pages 1 through max_pages_per_section (10).
+  b) Construct the URL: https://www.dawn.com/{section} for page 1,
+     https://www.dawn.com/{section}/{page} for subsequent pages.
+  c) Send an HTTP GET request with a Chrome browser User-Agent header to
+     avoid being blocked.
+  d) Parse the HTML response using BeautifulSoup.
+  e) Find all <article> tags with class="story" (Dawn's article container).
+  f) For each article:
+     - Extract the headline from the <a> tag's title attribute first,
+       falling back to alt attribute, then the plain text.
+     - Extract the article URL, normalizing relative URLs (starting with //
+       or /) to absolute URLs.
+     - Extract the image URL from the <img> tag, checking data-src,
+       data-lazy-src, and src attributes (in that order), skipping
+       data: URLs (inline base64 images).
+     - Skip duplicate URLs using a seen_urls set.
+  g) After collecting all raw articles, download images in parallel using
+     25 concurrent worker threads via ThreadPoolExecutor.
+  h) Save the final article list to SQLite database using insert_articles_batch.
+  i) Export everything to data/raw/dawn_articles.csv for backup/reference.
+
+  KEY DESIGN CHOICES:
+  - Multi-section scraping ensures broad topic coverage (politics, business,
+    sports, tech, culture, etc.)
+  - Multi-page per section maximizes article count (up to 90 page loads).
+  - Parallel image downloads with 25 workers makes image collection fast.
+  - CSV export provides a human-readable, portable data backup.
+  - URL deduplication prevents storing the same article twice.
+
+
+  1.2.2 Daily Ummat Scraper (scraper/ummat_scraper.py)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  File: scraper/ummat_scraper.py — 193 lines
+
+  WHAT IT DOES:
+  Scrapes news articles from Ummat.net (Urdu-language newspaper) using a
+  two-phase approach: category pages + numeric ID archive crawling.
+  Then translates Urdu headlines to English and filters out bad translations.
+
+  HOW IT WORKS (5 phases):
+
+  Phase 1 — Category Pages (10 categories):
+     Categories: (empty/home), latest-news/, topnews/, national/,
+     international/, sports/, commerce/, city/, literary/, editorial/
+     For each category URL (https://ummat.net/{cat}):
+     - Parse the HTML
+     - Build a mapping from article URLs to their associated image URLs by
+       scanning <a> tags containing <img> tags.
+     - Find all heading tags (h1-h4) containing <a> links.
+     - Extract headline text, article URL, and associated image URL.
+     - Deduplicate by URL.
+
+  Phase 2 — Numeric ID Archive Crawl:
+     Ummat uses numeric IDs in URLs (e.g., https://ummat.net/991275/).
+     The scraper starts from ID 991275 and crawls downward at high speed
+     using 30 parallel worker threads.
+     Each worker fetches a page, checks if it's a valid article (status 200,
+     contains "ummat" in text, has a real headline > 5 chars, no "404" in
+     title), and extracts headline and image.
+     Continues until target_count (1200) articles are collected or IDs
+     are exhausted down to ~980000.
+
+  Phase 3 — Translation:
+     Each Urdu headline is translated to English using Google Translate
+     (via deep-translator library). Translations are cached to disk in
+     data/raw/translation_cache.json to avoid re-translating on subsequent
+     runs.
+     Generic/failed translations (like "National", "Health", "Success
+     stories", etc.) are filtered out to ensure quality.
+
+  Phase 4 — Image Download:
+     Images for all valid articles are downloaded in parallel using 25
+     worker threads.
+
+  Phase 5 — Database & CSV Save:
+     Articles are saved to SQLite and exported to
+     data/raw/ummat_articles.csv.
+
+  KEY DESIGN CHOICES:
+  - Two-phase scraping (categories + numeric IDs) ensures comprehensive
+    coverage — categories give recent articles, numeric crawl gives
+    historical depth.
+  - 30 parallel workers for ID crawling makes this very fast despite
+    thousands of HTTP requests.
+  - Translation caching saves API costs and speeds up re-runs.
+  - Generic title filtering removes failed/bad translations automatically.
+
+
+  1.2.3 Scraper Utilities (scraper/utils.py)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  File: scraper/utils.py — 111 lines
+
+  Contains three utility functions shared across scrapers:
+
+  translate_urdu_to_english(text):
+  - First checks a local JSON cache (translation_cache.json) for existing
+    translations to avoid re-translating.
+  - If the text is already ASCII (English), returns it as-is.
+  - Tries GoogleTranslator from deep-translator library first.
+  - Falls back to the raw Google Translate API endpoint
+    (translate.googleapis.com/translate_a/single) with up to 2 retry
+    attempts.
+  - If all translation attempts fail, returns the original text.
+  - Saves cache to disk every 50 new translations to prevent data loss.
+  - Returns the translated English string.
+
+  download_image(url, filename):
+  - Downloads a single image from a URL to data/raw/images/{filename}.
+  - Skips data:image URLs (inline base64 images).
+  - Skips download if file already exists (deduplication).
+  - Sends a browser-like User-Agent header.
+  - Returns the local file path on success, None on failure.
+
+  download_images_parallel(image_tasks, max_workers=20):
+  - Takes a list of (url, filename) tuples.
+  - Downloads all images concurrently using ThreadPoolExecutor.
+  - Returns a dictionary mapping URL -> local filepath.
+  - Used by both Dawn and Ummat scrapers for fast image collection.
+
+
+  1.2.4 Scraper Scheduler (scraper/scheduler.py)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  File: scraper/scheduler.py — 37 lines
+
+  WHAT IT DOES:
+  Runs both scrapers (Dawn + Ummat) automatically every 6 hours using
+  the `schedule` Python library.
+
+  HOW IT WORKS:
+  - Defines scrape_all() function that calls both scrapers with error
+    handling (if one fails, the other still runs).
+  - Schedules scrape_all() to run every 6 hours via schedule.every(6).hours.do().
+  - Runs scrape_all() immediately on startup.
+  - Enters an infinite loop checking every 60 seconds if a scheduled
+    task is due.
+
+  PURPOSE:
+  Keeps the article database up-to-date automatically without manual
+  intervention, making the system suitable for ongoing news monitoring.
+
+
+  1.3 DATA STORAGE
+  -----------------
+
+  1.3.1 SQLite Database (created by backend/database.py)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  File: backend/database.py — 51 lines
+
+  The database is stored at:
+    data/raw/processed/database/news.db
+
+  Two tables are created:
+
+  TABLE: articles
+  ~~~~~~~~~~~~~~~~
+  Columns:
+    id            INTEGER PRIMARY KEY AUTOINCREMENT  — Unique article ID
+    source        TEXT                               — "Dawn" or "Ummat"
+    headline      TEXT                               — Article headline (English)
+    image_url     TEXT                               — Original image URL
+    image_path    TEXT                               — Local file path
+    article_url   TEXT UNIQUE                        — Original article URL
+    published_at  TEXT                               — Publication date
+    scraped_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP — When scraped
+    score         REAL                               — Relevance score
+    label         TEXT                               — Category label
+
+  The UNIQUE constraint on article_url prevents duplicate articles from
+  being inserted during repeated scraping runs.
+
+  TABLE: matches
+  ~~~~~~~~~~~~~~~
+  Columns:
+    id               INTEGER PRIMARY KEY AUTOINCREMENT — Unique match ID
+    dawn_id          INTEGER NOT NULL                  — FK to articles(id)
+    ummat_id         INTEGER NOT NULL                  — FK to articles(id)
+    text_similarity  REAL                              — 0-1 text similarity
+    image_similarity REAL                              — 0-1 image similarity
+    relevance_score  REAL                              — Weighted combined score
+    match_level      TEXT                              — "High", "Medium", "Low"
+    created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+  Foreign keys link dawn_id and ummat_id to the articles table,
+  ensuring referential integrity.
+
+
+  1.3.2 CSV Exports
+  ~~~~~~~~~~~~~~~~~~
+  - data/raw/dawn_articles.csv  — 434 Dawn articles
+  - data/raw/ummat_articles.csv — 895 Ummat articles (in English translation)
+
+  These are produced by the scrapers as human-readable backups and for
+  easy inspection/analysis in spreadsheet software.
+
+
+  1.3.3 JSON Data
+  ~~~~~~~~~~~~~~~~
+  - data/raw/ummat_raw.json — 6002 raw Ummat articles in Urdu (before
+    translation). Contains headline_urdu, article_url, image_url.
+  - data/raw/translation_cache.json — 201 Urdu-to-English translation pairs
+    cached to disk, indexed by original Urdu text.
+
+
+  1.3.4 Image Storage
+  ~~~~~~~~~~~~~~~~~~~~
+  - data/raw/images/ — Contains ~1120+ WebP images from both news sources.
+    Files are named dawn_1.webp, dawn_2.webp, ..., ummat_1.webp, etc.
+
+  Images are:
+  - Downloaded during scraping using parallel workers.
+  - Serving by the backend via /images/ URL path (static file mount).
+  - Used by the ML engine for image similarity comparison.
+  - Displayed in the frontend dashboard alongside article headlines.
+
+
+  1.4 BACKEND REST API (FastAPI)
+  -------------------------------
+
+  1.4.1 Application Entry Point (backend/main.py)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  File: backend/main.py — 34 lines
+
+  Creates the FastAPI application with:
+  - Title: "Pakistani News Relevance Dashboard", version "1.0"
+  - CORS middleware configured to allow all origins (*), methods, and
+    headers for development convenience.
+  - Four API routers mounted (articles, statistics, live, matches).
+  - Static files mount at /images serving from data/raw/images directory.
+  - Root endpoint GET / returns a simple status message.
+
+  WHY CORS IS OPEN:
+  The frontend runs on a different port (5500 via Python HTTP server) than
+  the backend (8000 via Uvicorn). Cross-Origin Resource Sharing (CORS)
+  must be enabled for the frontend to make fetch requests to the backend.
+
+
+  1.4.2 Database CRUD Layer (backend/crud.py)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  File: backend/crud.py — 242 lines
+
+  Eight functions for database access:
+
+  get_connection():
+  - Creates and returns a new SQLite connection with Row factory enabled
+    (so query results are accessible as dictionaries).
+  - Uses a context manager (with statement) so connections auto-close.
+
+  insert_article(article):
+  - Inserts a single article into the database.
+  - Catches IntegrityError for duplicate article_url (silently skips).
+  - Extracts fields: source, headline, image_url, image_path, article_url.
+
+  insert_articles_batch(articles):
+  - Inserts multiple articles in a loop within a single transaction.
+  - Returns count of successfully inserted articles.
+  - Also catches IntegrityError for duplicates.
+
+  get_all_articles():
+  - SELECT * FROM articles — returns all articles as list of dicts.
+
+  get_article_by_id(article_id):
+  - Returns a single article by its primary key ID, or None if not found.
+
+  get_articles_by_source(source):
+  - Returns all articles filtered by source name (e.g., "Dawn" or "Ummat").
+
+  get_stats():
+  - Returns aggregated statistics:
+    - total_articles, dawn_articles, ummat_articles
+    - total_matches, high_matches, medium_matches, low_matches
+  - Uses COUNT(*) queries on articles and matches tables.
+
+  insert_match(match):
+  - Inserts a match record with dawn_id, ummat_id, similarities, score,
+    and match_level.
+
+  get_all_matches():
+  - Performs a JOIN query across matches and articles tables:
+    SELECT m.dawn_id, d.headline AS dawn_headline, d.image_path AS dawn_image,
+           m.ummat_id, u.headline AS ummat_headline, u.image_path AS ummat_image,
+           m.text_similarity, m.image_similarity, m.relevance_score, m.match_level
+    FROM matches m
+    JOIN articles d ON m.dawn_id = d.id
+    JOIN articles u ON m.ummat_id = u.id
+    ORDER BY m.relevance_score DESC
+  - Remaps local image paths to URL paths by extracting just the filename
+    (os.path.basename) and prefixing with "/images/". This ensures the
+    frontend can load images via the backend's static file mount.
+
+
+  1.4.3 Pydantic Schemas (backend/schemas.py)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  File: backend/schemas.py — 50 lines
+
+  Three data validation models:
+
+  Article:
+  - id: int, source: str, headline: str
+  - image_url: Optional[str], image_path: Optional[str]
+  - article_url: str
+  - published_at: Optional[str], scraped_at: Optional[str]
+  - score: Optional[float], label: Optional[str]
+
+  Stats:
+  - total_articles: int, dawn_articles: int, ummat_articles: int
+  - total_matches: int
+  - high_matches: int, medium_matches: int, low_matches: int
+
+  MatchResponse:
+  - dawn_id: int, dawn_headline: str, dawn_image: Optional[str]
+  - ummat_id: int, ummat_headline: str, ummat_image: Optional[str]
+  - text_similarity: float, image_similarity: float
+  - relevance_score: float, match_level: str
+
+  These Pydantic models automatically:
+  - Validate data types at runtime
+  - Generate OpenAPI/Swagger documentation
+  - Provide editor autocompletion
+
+
+  1.4.4 API Routers
+  ~~~~~~~~~~~~~~~~~~
+
+  backend/routers/articles.py — 23 lines:
+  - GET /articles — Returns all articles via get_all_articles()
+  - GET /articles/{article_id} — Returns a single article by ID or 404
+
+  backend/routers/statistics.py — 11 lines:
+  - GET /statistics/ — Returns aggregated KPIs via get_stats()
+
+  backend/routers/live.py — 10 lines:
+  - GET /live — Returns {"status": "running"} for health checks
+
+  backend/routers/matches.py — 12 lines:
+  - GET /matches/ — Returns all matches sorted by relevance score (desc),
+    validated against MatchResponse schema
+
+
+  1.5 UTILITY SCRIPTS
+  --------------------
+
+  1.5.1 run_full_scraper.py — 279 lines
+  A comprehensive standalone pipeline script that:
+  - Scrapes Dawn (11 latest-news pages + 6 category pages with 15 workers)
+  - Scrapes Ummat (10 categories + 2500 numeric IDs with 35 workers)
+  - Translates Urdu headlines with caching
+  - Downloads all images in parallel
+  - Saves to SQLite and CSV
+  - Runs the matching engine
+  - Reports final database counts and match statistics
+
+  1.5.2 rematch.py — 60 lines
+  Utility to:
+  - Clear all existing matches from the database
+  - Re-run the full matching pipeline
+  - Print match level distribution (High/Medium/Low counts and percentages)
+  - Show top 10 matches with scores and headlines
+
+  1.5.3 sqltest.py — 14 lines
+  Creates a UNIQUE composite database index on matches(dawn_id, ummat_id)
+  to prevent duplicate match records from being inserted.
+
+  1.5.4 .gitignore
+  Ignores __pycache__/, *.pyc, and test_run_command.txt
+
+
+================================================================================
+================================================================================
+  PART 2: ML/NLP ENGINEER'S WORK
+================================================================================
+================================================================================
+
+  2.1 RESPONSIBILITIES (as defined in the project)
+  ------------------------------------------------
+  The ML/NLP Engineer is responsible for:
+  - Text preprocessing and cleaning
+  - Computing semantic text similarity between headlines
+  - Computing visual image similarity between article images
+  - Combining both modalities into a weighted relevance score
+  - Building the article matching pipeline
+  - Setting match thresholds and level classifications
+  - Optimizing the matching algorithm for cross-language (English-Urdu) pairs
+
+
+  2.2 TEXT PREPROCESSING (ml_engine/preprocessing.py)
+  ----------------------------------------------------
+  File: ml_engine/preprocessing.py — 24 lines
+
+  Function: preprocess_text(text) -> str
+
+  WHAT IT DOES:
+  Cleans raw article headlines before similarity computation.
+
+  HOW IT WORKS (4 steps):
+  1. Lowercase — converts all text to lowercase for case-insensitive
+     comparison (e.g., "Pakistan" and "pakistan" match).
+  2. Remove punctuation — regex [^\w\s] removes all non-word, non-space
+     characters (periods, commas, quotes, etc.).
+  3. Remove numbers — regex \d+ strips all numeric digits.
+  4. Collapse whitespace — regex \s+ replaces multiple spaces with a
+     single space, then trims leading/trailing spaces.
+
+  WHY THIS MATTERS:
+  Headlines from different sources may use different punctuation, case,
+  and formatting. Normalizing them ensures the embedding model focuses on
+  semantic content rather than surface-level formatting differences.
+
+
+  2.3 TEXT SIMILARITY (ml_engine/text_similarity.py)
+  ---------------------------------------------------
+  File: ml_engine/text_similarity.py — 25 lines
+
+  WHAT IT DOES:
+  Computes semantic similarity between two article headlines using
+  state-of-the-art NLP embeddings.
+
+  MODEL USED:
+  all-MiniLM-L6-v2 — A Sentence Transformer model that:
+  - Is a distilled (smaller, faster) version of the BERT architecture
+  - Produces 384-dimensional dense vector embeddings for sentences
+  - Is optimized for semantic similarity tasks
+  - Runs efficiently on CPU (no GPU required)
+  - Is 5x faster than BERT while retaining good accuracy
+
+  FUNCTION: calculate_text_similarity(text1, text2) -> float (0 to 1)
+
+  STEPS:
+  1. Preprocess both texts using preprocess_text().
+  2. Encode each text into a 384-dimensional embedding vector using the
+     SentenceTransformer model (model.encode([text])).
+  3. Compute cosine similarity between the two embedding vectors using
+     sklearn.metrics.pairwise.cosine_similarity.
+  4. Return the similarity score rounded to 3 decimal places.
+
+  COSINE SIMILARITY FORMULA:
+    similarity = (A . B) / (||A|| * ||B||)
+    where A and B are embedding vectors, . is dot product, || || is
+    vector magnitude.
+
+  Values range from -1 (opposite meaning) to 0 (unrelated) to 1 (identical
+  meaning). Since our embeddings are positive, results are typically 0 to 1.
+
+  GLOBAL MODEL LOADING:
+  The SentenceTransformer model is loaded at the module level (line 6),
+  which means it loads once on import and is reused across all function
+  calls. This is critical for performance — loading the model takes several
+  seconds but encoding takes milliseconds per text.
+
+
+  2.4 IMAGE SIMILARITY (ml_engine/image_similarity.py)
+  -----------------------------------------------------
+  File: ml_engine/image_similarity.py — 97 lines
+
+  WHAT IT DOES:
+  Compares two article images using TWO complementary techniques:
+  1. Difference Hash (dhash) — measures structural/perceptual similarity
+  2. HSV Histogram Correlation — measures color similarity
+
+  WHY TWO TECHNIQUES?
+  - dhash captures layout/structure similarity (e.g., both photos show a
+    person at a podium).
+  - HSV histogram captures color palette similarity (e.g., both photos
+    have blue sky and green grass).
+  - Combining them gives a more robust similarity measure than either alone.
+
+  IMAGE SIZE FILTER:
+  Images smaller than 5000 bytes (5KB) are automatically filtered out
+  with a similarity score of 0. These are usually logos, icons, or
+  placeholder images that don't represent article content.
+
+  2.4.1 Difference Hash (dhash)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Function: dhash(image, hash_size=8) -> list of booleans
+  Function: dhash_similarity(img1, img2) -> float (0 to 1)
+
+  HOW DHASH WORKS:
+  1. Convert image to grayscale.
+  2. Resize to (hash_size + 1) × hash_size pixels (9x8 by default).
+  3. Compare each pixel with its neighbor to the right.
+  4. If left pixel is brighter than right pixel, the bit is 1, else 0.
+  5. This produces a 64-bit "fingerprint" of the image (8 rows × 8 cols).
+  6. Compare two hashes using Hamming distance (count of differing bits).
+  7. Similarity = 1 - (Hamming distance / 64).
+
+  WHY DHASH:
+  - Very fast (pure Pillow, no heavy libraries).
+  - Robust to resizing, aspect ratio changes, and minor color variations.
+  - Captures the "structure" of an image — two photos of the same event
+    will have similar gradients.
+
+  2.4.2 HSV Histogram Correlation
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Function: histogram_similarity(img1_path, img2_path) -> float (0 to 1)
+
+  HOW IT WORKS:
+  1. Load both images using OpenCV (cv2.imread).
+  2. Convert from BGR to HSV color space.
+  3. Compute a 2D histogram on Hue (180 bins) and Saturation (256 bins)
+     using cv2.calcHist.
+  4. Normalize both histograms to [0, 1] range.
+  5. Compare using HISTCMP_CORREL (Pearson correlation).
+  6. Scale the correlation from [-1, 1] range to [0, 1] range using
+     formula: max(0.0, (correlation + 1.0) / 2.0).
+
+  WHY HSV:
+  - HSV (Hue, Saturation, Value) separates color from brightness, making
+    it more robust to lighting changes than RGB.
+  - Two images of the same event (e.g., a cricket match) will have similar
+    color distributions (green field, white clothing, red/white ball).
+
+  2.4.3 Combined Score
+  ~~~~~~~~~~~~~~~~~~~~~
+  Function: calculate_image_similarity(image1_path, image2_path) -> float
+
+  Score = 0.50 × dhash_similarity + 0.50 × histogram_similarity
+
+  Equal weighting gives both structure and color equal importance.
+  Returns 0.0 if:
+  - Either image path is None or empty
+  - Either image file doesn't exist on disk
+  - Either image is smaller than 5KB (logo/placeholder filter)
+  - Any exception occurs during processing
+
+
+  2.5 RELEVANCE SCORING (ml_engine/scoring.py)
+  ---------------------------------------------
+  File: ml_engine/scoring.py — 31 lines
+
+  Function: calculate_relevance(
+      headline1, headline2, image1_path, image2_path,
+      text_weight=0.65, image_weight=0.35
+  ) -> dict
+
+  WHAT IT DOES:
+  Combines text and image similarity into a single multimodal relevance
+  score using weighted averaging.
+
+  SCORE FORMULA:
+    relevance_score = 0.65 × text_similarity + 0.35 × image_similarity
+
+  WHY THESE WEIGHTS:
+  - Text (65%): Headlines are the primary indicator of topic. If two
+    articles' headlines are semantically similar, they likely cover the
+    same event. This is especially important because we're matching
+    cross-lingual content (English vs translated Urdu).
+  - Image (35%): Images provide supporting visual evidence but can be
+    misleading (e.g., generic stock photos). The lower weight prevents
+    false positives from coincidentally similar images.
+
+  Returns a dictionary with keys:
+  - text_similarity: float (0-1)
+  - image_similarity: float (0-1)
+  - relevance_score: float (0-1)
+
+
+  2.6 ARTICLE MATCHING PIPELINE (ml_engine/matcher.py)
+  -----------------------------------------------------
+  File: ml_engine/matcher.py — 213 lines
+
+  This is the CORE of the ML system — it matches Dawn articles with Ummat
+  articles covering the same real-world events.
+
+  FUNCTION: match_articles() -> list of match dicts
+
+  HOW IT WORKS (step by step):
+
+  Step 1 — Data Loading:
+  - Connect to the SQLite database.
+  - Query all Dawn articles (source = 'Dawn'): SELECT id, headline, image_path
+  - Query all Ummat articles (source = 'Ummat'): SELECT id, headline, image_path
+  - Close database connection.
+  - If either set is empty, print error and return.
+
+  Step 2 — Batch Embedding (Vectorization):
+  - Preprocess all Dawn headlines and all Ummat headlines using
+    preprocess_text().
+  - Encode ALL Dawn headlines simultaneously using model.encode() with
+    batch_size=64 and show_progress_bar=True.
+  - Encode ALL Ummat headlines simultaneously the same way.
+  - This produces two matrices:
+      Dawn Embeddings:  (N_dawn × 384)
+      Ummat Embeddings: (N_ummat × 384)
+
+  Step 3 — Cosine Similarity Matrix:
+  - Compute the full similarity matrix using sklearn's cosine_similarity:
+      sim_matrix[N_dawn x N_ummat]
+  - Each cell [i][j] contains the cosine similarity between Dawn
+    article i and Ummat article j.
+  - This vectorized approach is MUCH faster than comparing pairs in a loop.
+
+  Step 4 — Candidate Filtering (for each Dawn article):
+  - Find all Ummat indices where sim_matrix[idx_d] >= MIN_TEXT_FILTER (0.20).
+  - Filter out "generic" headlines that are bad translation results
+    (e.g., "National", "Health", "Success stories", etc. — these come
+    from when Google Translate fails on short Urdu titles).
+  - If no candidates remain, skip this Dawn article.
+
+  Step 5 — Top Candidate Selection:
+  - Sort candidates by text similarity score (descending).
+  - Take only the top MAX_IMAGE_CANDIDATES (5) candidates for image
+    similarity computation (computing image sim is expensive — it requires
+    loading and processing image files).
+  - For each top candidate:
+    a) Compute image similarity using calculate_image_similarity() if both
+       images exist on disk.
+    b) Compute combined relevance: 0.65×text_sim + 0.35×image_sim.
+    c) Track the best (highest relevance) candidate.
+
+  Step 6 — Save Best Match (if qualifying):
+  - If best candidate exists AND:
+      text_similarity >= MIN_TEXT_SAVE (0.25)
+      relevance_score >= MIN_SCORE_SAVE (0.30)
+  - Classify match level:
+      >= 0.50 → "High"
+      >= 0.38 → "Medium"
+      < 0.38  → "Low"
+  - Check if this (dawn_id, ummat_id) pair already exists in matches table
+    to avoid duplicates.
+  - Insert match record via insert_match().
+  - Append to best_matches list.
+
+  Step 7 — Return Results:
+  - Sort all matches by score descending.
+  - Close database connection.
+  - Print summary statistics.
+  - Return the list of best matches.
+
+  MATCHING THRESHOLDS SUMMARY:
+  ┌─────────────────────────┬──────────┐
+  │ Parameter               │ Value    │
+  ├─────────────────────────┼──────────┤
+  │ MIN_TEXT_FILTER         │ 0.20     │
+  │ MIN_TEXT_SAVE           │ 0.25     │
+  │ MIN_SCORE_SAVE          │ 0.30     │
+  │ HIGH_THRESHOLD          │ 0.50     │
+  │ MEDIUM_THRESHOLD        │ 0.38     │
+  │ TEXT_WEIGHT             │ 0.65     │
+  │ IMAGE_WEIGHT            │ 0.35     │
+  │ MAX_IMAGE_CANDIDATES    │ 5        │
+  └─────────────────────────┴──────────┘
+
+  Generic headlines filtered:
+  {"National", "Health", "Success stories", "Ummat literature",
+   "Surprise", "Bam world", "Environmental variation",
+   "Colors of the universe"}
+
+
+  2.7 MANUAL TEST SCRIPTS (for ML components)
+  --------------------------------------------
+  These are standalone test scripts in the project root:
+
+  test_preprocessing.py — Tests preprocess_text() with sample text
+  test_text_similarity.py — Tests similarity between two cricket headlines
+  test_image_similarity.py — Tests image similarity between article images
+  test_scoring.py — Tests combined relevance scoring
+  test_matcher.py — Runs the full matching pipeline and shows detailed output
+
+
+  2.8 KEY DESIGN INSIGHTS ABOUT THE ML APPROACH
+  ----------------------------------------------
+
+  CHALLENGE: CROSS-LANGUAGE MATCHING
+  Dawn articles are in English. Ummat articles are in Urdu, translated
+  to English via Google Translate. The translations are imperfect.
+  Solution: all-MiniLM-L6-v2 produces embeddings that capture semantic
+  meaning, not exact wording. Even imperfect translations of the same
+  event will have similar embeddings.
+
+  CHALLENGE: PERFORMANCE
+  N_dawn × N_ummat comparisons would be O(n^2) if done naively.
+  Solution: Vectorized similarity matrix computation (Step 3) and top-5
+  candidate filtering (Step 5) reduce image similarity computations from
+  potentially millions to just N_dawn × 5.
+
+  CHALLENGE: IMAGE QUALITY VARIATION
+  News websites use various image sizes, formats, and quality levels.
+  Solution: dhash is robust to resizing; HSV histogram is robust to
+  lighting changes; 5KB minimum filter removes logos/placeholders.
+
+  CHALLENGE: FALSE POSITIVES FROM TRANSLATION
+  Failed translations often produce generic single-word results.
+  Solution: The generic headlines set explicitly filters these out before
+  computing expensive image similarity.
+
+
+================================================================================
+================================================================================
+  PART 3: FRONTEND ENGINEER'S WORK
+================================================================================
+================================================================================
+
+  3.1 RESPONSIBILITIES (as defined in the project)
+  ------------------------------------------------
+  The Frontend Engineer is responsible for:
+  - Building the interactive data dashboard
+  - Displaying KPI statistics (total articles, matches, etc.)
+  - Rendering Chart.js visualizations (pie chart + bar chart)
+  - Implementing search, filter, and sort functionality
+  - Building a paginated match results table
+  - Supporting light/dark theme toggle
+  - Adding visual effects (particle background, 3D tilt cards)
+  - Handling loading states, error states, and offline mode
+  - Connecting the frontend to the FastAPI backend via fetch API
+
+
+  3.2 HTML STRUCTURE (frontend_UI/index.html)
+  --------------------------------------------
+  File: frontend_UI/index.html — 370 lines
+
+  The HTML is structured as a single-page dashboard with these sections:
+
+  HEADER (lines 22-53):
+  - Logo image (logo.png)
+  - Dashboard title and subtitle
+  - Backend Status Pill (clickable to toggle online/offline)
+  - Refresh button
+  - Theme toggle button (moon/sun icons)
+
+  LOADING SKELETONS (lines 55-81, 188-198, 280-288):
+  - Hidden by default (class="hidden")
+  - Shown during data fetching
+  - KPI skeletons: 6 cards with shimmer animated placeholder content
+  - Chart skeletons: 2 cards with placeholder chart areas
+  - Table skeleton: Full-width card with placeholder rows
+
+  STATISTICS SECTION (lines 83-186):
+  - 6 KPI cards in a responsive grid:
+    1. Total Articles (files icon)
+    2. Dawn Articles (file-text icon, blue accent)
+    3. Daily Ummat Articles (file-text icon, green accent)
+    4. Total Matches (git-compare icon, purple accent)
+    5. Medium Matches (alert-circle icon, amber accent)
+    6. Low Matches (x-circle icon, red accent)
+  - Each card has: label, number, trend footer with icon
+
+  ANALYTICS SECTION (lines 200-229):
+  - Two chart cards side by side:
+    1. "Match Level Distribution" — Doughnut/Pie Chart
+    2. "Article Volume by Category" — Bar Chart
+
+  FILTER TOOLBAR (lines 231-278):
+  - Search input with search icon (debounced, 300ms delay)
+  - Match Level dropdown (All / High / Medium / Low)
+  - Min Relevance Score range slider (0-100%)
+  - Sort By dropdown (Highest Score / Lowest Score / Newest / Oldest)
+  - Reset filters button
+
+  TABLE SECTION (lines 304-357):
+  - Header with "Multimodal Matches" title and match count badge
+  - Sortable column headers:
+    1. Dawn Article (English) — 25% width
+    2. Daily Ummat Article (Urdu) — 25% width
+    3. Text Sim (sortable) — 13% width
+    4. Image Sim (sortable) — 13% width
+    5. Overall Score (sortable) — 12% width
+    6. Match Level — 12% width
+  - Table body rendered dynamically by JavaScript
+  - Pagination with Previous/Next buttons and "Showing X to Y of Z" text
+
+  ERROR STATE (lines 290-302):
+  - Cloud-off icon, error title, error message
+  - Retry Connection button
+
+  FOOTER (lines 361-364):
+  - Copyright text, centered
+
+  SCRIPTS LOADED:
+  - Lucide Icons CDN (unpkg.com/lucide)
+  - Chart.js CDN (cdn.jsdelivr.net/npm/chart.js)
+  - data.js (mock data for offline mode)
+  - app.js (main application logic)
+
+
+  3.3 CSS DESIGN SYSTEM (frontend_UI/styles.css)
+  -----------------------------------------------
+  File: frontend_UI/styles.css — 984 lines
+
+  This is a comprehensive, professionally-styled design system.
+
+  3.3.1 Theme Variables (lines 9-91):
+  Light Theme (default):
+  - Background: #F1F5F9 (slate-gray)
+  - Cards: #FFFFFF (pure white)
+  - Text primary: #0F172A (slate-900)
+  - Primary accent: #1E3A8A (deep midnight navy)
+  - Shadows: subtle, professional-grade
+  - Status colors: High (emerald), Medium (amber), Low (red)
+
+  Dark Theme (.dark-theme):
+  - Background: #090D16 (deep space)
+  - Cards: #0F172A (dark slate)
+  - Text primary: #F8FAFC (light)
+  - Primary accent: #3B82F6 (blue)
+  - Shadows: darker, deeper
+  - Status colors: muted, accessible variants
+
+  3.3.2 Key CSS Sections:
+  - Base Elements & Reset (lines 93-121): Box-sizing, font, body styling
+  - Layout Containers (lines 123-167): Responsive container, header flexbox
+  - Buttons & Status (lines 169-275): Status pill with animated pulse dot,
+    primary/secondary buttons, icon-only buttons
+  - KPI Cards Grid (lines 277-428): Auto-fit grid with 180px min column,
+    3D tilt card with glare overlay, spotlight border, glow shadow
+  - Analytics Charts (lines 430-470): Side-by-side grid, chart containers
+  - Filters Toolbar (lines 472-576): Flex-wrap toolbar, search/dropdown/range
+    inputs with focus rings, custom range slider thumb
+  - Table Section (lines 578-795): Sticky headers, custom scrollbar,
+    news thumbnail + headline columns, animated similarity progress bars,
+    circular score badges, match level badges (green/amber/red)
+  - Pagination (lines 797-816): Flex row with Previous/Next buttons
+  - Loading Skeletons (lines 818-868): Shimmer animation with gradient
+    sweeping effect
+  - Error Screen (lines 870-907): Centered card with illustration
+  - Footer (lines 909-918): Muted copyright
+  - Responsive Breakpoints (lines 920-984):
+    - 1024px tablet: 3-column KPIs, stacked charts, tighter padding
+    - 640px mobile: 1-column KPIs, stacked everything, full-width controls
+
+  3.3.3 Notable CSS Techniques:
+  - 3D Tilt Card: Uses perspective, rotateX, rotateY, scale3d transforms
+    triggered by JS-calculated mouse coordinates. Includes:
+    - card-glare: radial gradient overlay following mouse position
+    - card-spotlight: radial gradient border with mask-composite
+    - card-glow-shadow: outer glow with blur filter
+  - Animated pulse dot on status indicator using CSS keyframes
+  - Smooth progress bar animation on table similarity bars
+  - Shimmer skeleton animation using moving gradient background
+  - Custom scrollbar styling for modern look
+  - Urdu text support with right-to-left direction and Noto Nastaliq font
+
+
+  3.4 JAVASCRIPT APPLICATION LOGIC (frontend_UI/app.js)
+  ------------------------------------------------------
+  File: frontend_UI/app.js — 1042 lines
+
+  This is the main application logic file. All functionality is wrapped
+  in a DOMContentLoaded event listener.
+
+  3.4.1 State Management (lines 46-64):
+  - allMatches[] — All matches loaded from backend or mock data
+  - filteredMatches[] — Current filtered/sorted subset
+  - dashboardStats{} — KPI statistics from backend
+  - currentPage (default 1) — Pagination state
+  - rowsPerPage (5) — Items per page
+  - isOnline (default true) — Simulated backend status
+  - isDarkMode (default false) — Theme state
+  - activeHeaderSort { field, order } — Column sorting state
+  - pieChartInstance, barChartInstance — Chart.js instances
+
+  3.4.2 Initialization (lines 71-91):
+  - Check localStorage and system preference for dark mode
+  - Bind all event listeners
+  - Initialize particle background (Canvas)
+  - Initialize 3D tilt cards
+  - Fetch data from backend
+
+  3.4.3 Event Binding (lines 93-167):
+  - Theme toggle: switches between light/dark, saves to localStorage
+  - Status toggle: simulates backend going offline/online
+  - Refresh button: re-fetches all data
+  - Search input: 300ms debounced filtering
+  - Dropdown changes: match level, sort order
+  - Range slider: real-time value display + filtering
+  - Reset button: clears all filters
+  - Pagination buttons: Previous/Next with boundary checks
+  - Sortable headers: click to sort, toggle asc/desc
+
+  3.4.4 Backend Communication (lines 225-301):
+  Function: fetchData()
+  - Shows skeleton loading states
+  - Waits 900ms (simulated delay for UX)
+  - If offline: shows error screen
+  - If online: fetches /matches/ and /statistics/ in parallel via Promise.all
+  - Maps backend field names to frontend model:
+    dawn_headline → dawnHeadline
+    text_similarity → textSimilarity (scaled to percentage)
+    relevance_score → overallScore (scaled to percentage)
+    etc.
+  - Converts relative image paths (/images/foo.webp) to absolute URLs
+  - On error: shows error card with retry button
+
+  3.4.5 Filtering & Sorting (lines 346-398):
+  Function: applyFiltersAndRender()
+  - Text search across dawnHeadline, ummatHeadline, and category
+  - Match level dropdown filter
+  - Minimum relevance score slider filter
+  - Sort by column header click (text/asc toggle)
+  - Sort by dropdown (highest/lowest/newest/oldest)
+  - Updates KPI numbers for visible matches
+  - Re-renders charts and table
+
+  3.4.6 KPI Updates (lines 400-441):
+  Function: updateKPIs()
+  - Sets static totals from backend stats (total articles, dawn, ummat,
+    total matches)
+  - Dynamically calculates medium/low counts and percentages based on
+    current filtered results
+
+  3.4.7 Table Rendering (lines 491-622):
+  Function: renderPaginatedTable()
+  - Calculates pagination (start index, end index, max pages)
+  - Renders table rows with:
+    - Dawn column: thumbnail image + headline
+    - Ummat column: thumbnail image + Urdu headline (rtl)
+    - Text similarity: percentage label + animated progress bar
+    - Image similarity: percentage label + animated progress bar
+    - Overall score: circular badge with color based on match level
+    - Match level: colored badge (High=green, Medium=amber, Low=red)
+  - Empty state: "No article matches found" with inbox icon
+  - Updates pagination info and button states
+  - Triggers progress bar animation after DOM mount (setTimeout 100ms)
+
+  3.4.8 Charts (lines 624-834):
+  Function: initCharts()
+  - Destroys existing Chart.js instances to prevent memory leaks
+  - PIE CHART (Doughnut):
+    - Data: count of High, Medium, Low matches in filtered results
+    - Colors: Emerald/Amber/Red (light mode), lighter variants (dark mode)
+    - 65% cutout, responsive, bottom legend
+    - Tooltip shows count and percentage
+    - Empty state: all gray slices with "No data available"
+  - BAR CHART:
+    - Two groups: Dawn (English) and Daily Ummat (Urdu)
+    - Shows total article counts from backend statistics
+    - Rounded bars, bottom legend
+    - Theme-aware colors (navy/emerald light, blue/emerald dark)
+  - Both charts use a getThemeColors() helper to adapt to dark/light mode
+
+  3.4.9 Particle Background (lines 837-977):
+  Function: initParticleBackground()
+  - Canvas-based animated particle system with 200 particles
+  - Each particle:
+    - Moves in a flow-field pattern (cos/sin noise function)
+    - Responds to mouse position (repulsion within 150px radius)
+    - Has velocity, friction (0.94), and lifespan (100-300 frames)
+    - Wraps around screen edges
+    - Fades in/out based on age/lifespan ratio
+    - Color adapts to theme: indigo in dark mode, blue in light mode
+  - Trail effect: canvas is partially cleared each frame (opacity 0.12)
+  - Handles window resize and device pixel ratio
+  - Handles mouse leave (hides mouse position)
+
+  3.4.10 3D Tilt Cards (lines 979-1038):
+  Function: initTiltCards()
+  - Applied to ALL elements with class="card"
+  - Dynamically creates glare, spotlight, and glow-shadow child elements
+  - On mousemove:
+    - Calculates mouse position as percentage within card
+    - Applies perspective(1000px) rotateX/rotateY transform
+    - Max tilt: 10 degrees
+    - Scale: 1.02 on hover
+    - Updates CSS variables for glare and spotlight positions
+  - On mouseleave:
+    - Smooth snapback to identity transform
+    - Transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1)
+
+
+  3.5 MOCK DATA (frontend_UI/data.js)
+  ------------------------------------
+  File: frontend_UI/data.js — 217 lines
+
+  Contains MOCK_MATCHES array with 16 pre-defined match entries for
+  development/demonstration when the backend is not available.
+
+  Each entry contains:
+  - id, category (Economy, Sports, Diplomacy, Weather, Technology, etc.)
+  - dawnHeadline, dawnImage (Unsplash photo URLs)
+  - ummatHeadline (in Urdu script), ummatImage (Unsplash photo URLs)
+  - textSimilarity, imageSimilarity, overallScore (as percentages 0-100)
+  - matchLevel (High/Medium/Low)
+  - publishDate (ISO date string)
+
+  The array covers diverse topics:
+  1. Economy: IMF bailout (90% score, High)
+  2. Sports: Pakistan vs India T20 (93%, High)
+  3. Diplomacy: CPEC Phase-2 (85%, High)
+  4. Weather: Monsoon rains (87%, High)
+  5. Technology: Fintech startup (73%, Medium)
+  6. Politics: Senate elections (85%, High)
+  7. Economy: Gold prices (79%, Medium)
+  8. Economy: Federal budget (89%, High)
+  9. Infrastructure: Karachi cleanup (76%, Medium)
+  10. Law: Minority rights (58%, Low)
+  11. Agriculture: Digital policy (52%, Low)
+  12. Technology: IT exports (59%, Low)
+  13. Education: Summer vacations (77%, Medium)
+  14. Health: Dengue cases (72%, Medium)
+  15. Diplomacy: SCO summit (89%, High)
+  16. Infrastructure: Food street (55%, Low)
+
+  The data is attached to window.MOCK_MATCHES for the app to consume.
+  In the current version of app.js, the mock data is not actively used
+  (the app fetches from the backend), but it's available as a fallback
+  option.
+
+
+  3.6 REACT/TypeScript COMPONENTS (frontend_UI/components/ui/)
+  -------------------------------------------------------------
+  These are supplementary UI components written in React + TypeScript,
+  likely intended for a future migration from vanilla JS to a React
+  framework.
+
+  be-ui-tilt-card.tsx:
+  - TiltCard component with motion spring physics
+  - 3D perspective tilt on mouse move
+  - Glare effect overlay
+  - Reduced motion support (prefers-reduced-motion media query)
+
+  spotlight-card.tsx:
+  - SpotlightCard component
+  - Mouse-tracking radial gradient spotlight (follows cursor)
+  - Animated border glow using CSS mask composite technique
+
+  flow-field-background.tsx:
+  - NeuralBackground canvas component
+  - Configurable: color, trail opacity, particle count, speed
+  - Same flow-field animation as the vanilla JS version
+
+  demo.tsx:
+  - Demo page showing all three components in action
+  - Used for component testing and visual reference
+
+
+  3.7 KEY DESIGN INSIGHTS ABOUT THE FRONTEND
+  -------------------------------------------
+
+  1. RESILIENT ARCHITECTURE:
+     The frontend gracefully handles backend availability:
+     - Loading skeletons shown during fetch
+     - Error screen with retry when backend unreachable
+     - Mock data available as fallback
+     - Offline mode toggle for demonstration
+
+  2. PERFORMANCE OPTIMIZATIONS:
+     - Debounced search input (300ms) prevents excessive filtering
+     - Paginated table (5 rows/page) prevents DOM bloat
+     - Chart.js instances destroyed/recreated to prevent memory leaks
+     - Similarity bar animations delayed until DOM mount (100ms)
+
+  3. ACCESSIBILITY & UX:
+     - Dark/light theme with system preference detection
+     - Smooth CSS transitions on theme switch
+     - Clickable status toggle for demo mode
+     - Responsive design for tablet and mobile
+     - Urdu text support with RTL direction
+
+  4. VISUAL POLISH:
+     - Animated flow-field particle background
+     - 3D tilt cards with glare, spotlight, and glow shadow
+     - Animated similarity progress bars
+     - Circular score badges with match-level colors
+     - Pulsing online status indicator
+
+
+================================================================================
+  COMPLETE SYSTEM FLOW
+================================================================================
+
+  Here is how all three roles' work fits together end-to-end:
+
+  1. DATA COLLECTION (Data Engineer):
+     Scheduler triggers scraping every 6 hours
+     ├── Dawn Scraper collects 434+ English articles + images
+     ├── Ummat Scraper collects 895+ Urdu articles + images
+     ├── Urdu headlines translated to English (with caching)
+     └── All data stored in SQLite, CSV, and image files
+
+  2. MATCHING (ML/NLP Engineer):
+     Matcher pipeline runs after data collection
+     ├── Loads all Dawn and Ummat articles from SQLite
+     ├── Preprocesses text (cleaning, normalization)
+     ├── Embeds all headlines using all-MiniLM-L6-v2 (384-dim vectors)
+     ├── Computes full cosine similarity matrix
+     ├── For each Dawn article:
+     │   ├── Filters Ummat candidates (text sim >= 0.20)
+     │   ├── Removes generic/bad translations
+     │   ├── Takes top 5 candidates
+     │   ├── Computes image similarity for each
+     │   └── Saves best match if qualifying (>= 0.25 text, >= 0.30 overall)
+     └── Matches stored in SQLite with High/Medium/Low labels
+
+  3. API SERVING (Data Engineer):
+     FastAPI backend serves data
+     ├── GET /articles — all articles
+     ├── GET /matches/ — all matches with details
+     ├── GET /statistics/ — aggregate KPIs
+     └── /images/ — static image files
+
+  4. VISUALIZATION (Frontend Engineer):
+     Dashboard displays results
+     ├── Fetches from backend API
+     ├── Shows KPI cards (articles, matches by level)
+     ├── Renders pie chart (match level distribution)
+     ├── Renders bar chart (article volume comparison)
+     ├── Provides search/filter/sort controls
+     ├── Shows paginated table with similarity scores
+     └── Interactive effects: particles, 3D tilt cards, themes
+
+
+================================================================================
+  MATCHING THRESHOLDS SUMMARY
+================================================================================
+
+  Relevance Score = 0.65 × Text Similarity + 0.35 × Image Similarity
+
+  ┌──────────────────────┬────────────┐
+  │ Match Level          │ Threshold  │
+  ├──────────────────────┼────────────┤
+  │ High Match           │ >= 0.50    │
+  │ Medium Match         │ >= 0.38    │
+  │ Low Match            │ < 0.38     │
+  └──────────────────────┴────────────┘
+
+  ┌──────────────────────┬────────────┐
+  │ Filter               │ Threshold  │
+  ├──────────────────────┼────────────┤
+  │ Min text candidate   │ 0.20       │
+  │ Min text to save     │ 0.25       │
+  │ Min overall to save  │ 0.30       │
+  │ Top image candidates │ 5 per Dawn │
+  └──────────────────────┴────────────┘
+
+
+================================================================================
+  API ENDPOINTS REFERENCE
+================================================================================
+
+  ┌──────────┬────────────────────────┬──────────────────────────────────┐
+  │ Method   │ Endpoint               │ Description                      │
+  ├──────────┼────────────────────────┼──────────────────────────────────┤
+  │ GET      │ /                      │ API status message               │
+  │ GET      │ /articles              │ List all articles                │
+  │ GET      │ /articles/{id}         │ Get single article by ID         │
+  │ GET      │ /matches/              │ List all matches (sorted desc)   │
+  │ GET      │ /statistics/           │ Dashboard KPI statistics         │
+  │ GET      │ /live                  │ Health check ({"status":"run"})  │
+  └──────────┴────────────────────────┴──────────────────────────────────┘
+
+  Backend runs on:  http://127.0.0.1:8000
+  API Docs (Swagger): http://127.0.0.1:8000/docs
+  Frontend runs on:  http://127.0.0.1:5500
+
+
+================================================================================
+  TEAM BRANCHES (Git)
+================================================================================
+
+  The project uses Git with 4 branches:
+
+  main — Integration branch with complete project
+  data-engineer — Data Engineer's work (scrapers, database, backend)
+  ml-nlp-engineer — ML/NLP Engineer's work (similarity, matching)
+  frontend-engineer — Frontend Engineer's work (dashboard, UI)
+
+  Remote: https://github.com/Jami436/pakistani-news-relevance-dashboard.git
+
+
+================================================================================
+  HOW TO RUN THE PROJECT
+================================================================================
+
+  1. Install dependencies:
+     pip install -r requirements.txt
+
+  2. Start the backend:
+     uvicorn backend.main:app --reload
+     → Runs on http://127.0.0.1:8000
+
+  3. Start the frontend:
+     cd frontend_UI
+     python -m http.server 5500
+     → Runs on http://127.0.0.1:5500
+
+  4. (Optional) Run the full data pipeline:
+     python run_full_scraper.py
+
+  5. (Optional) Re-run matching only:
+     python rematch.py
+
+
+================================================================================
+  END OF PROJECT EXPLANATION
+================================================================================

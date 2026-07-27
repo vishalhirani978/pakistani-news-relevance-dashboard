@@ -1,0 +1,217 @@
+const MOCK_MATCHES = [
+  {
+    id: 1,
+    category: "Economy",
+    dawnHeadline: "Pakistan and IMF reach staff-level agreement on $7 billion bailout package",
+    dawnImage: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=200&auto=format&fit=crop&q=60",
+    ummatHeadline: "پاکستانی معیشت کے لیے آئی ایم ایف سے 7 ارب ڈالر کے نئے قرضے کا معاہدہ طے پا گیا",
+    ummatImage: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=200&auto=format&fit=crop&q=60",
+    textSimilarity: 92,
+    imageSimilarity: 88,
+    overallScore: 90,
+    matchLevel: "High",
+    publishDate: "2026-07-06T14:30:00Z"
+  },
+  {
+    id: 2,
+    category: "Sports",
+    dawnHeadline: "Pakistan suffer heartbreaking defeat against India in low-scoring T20 thriller",
+    dawnImage: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=200&auto=format&fit=crop&q=60",
+    ummatHeadline: "نیویارک میں روایتی حریف بھارت کے خلاف سنسنی خیز مقابلے میں پاکستان کو شکست",
+    ummatImage: "https://images.unsplash.com/photo-1608248597481-496100c8c836?w=200&auto=format&fit=crop&q=60",
+    textSimilarity: 95,
+    imageSimilarity: 91,
+    overallScore: 93,
+    matchLevel: "High",
+    publishDate: "2026-07-06T12:15:00Z"
+  },
+  {
+    id: 3,
+    category: "Diplomacy",
+    dawnHeadline: "CPEC Phase-2: China and Pakistan pledge to accelerate industrial cooperation",
+    dawnImage: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=200&auto=format&fit=crop&q=60",
+    ummatHeadline: "سی پیک کا دوسرا مرحلہ: چین اور پاکستان کا صنعتی و زرعی تعاون مزید تیز کرنے کا عزم",
+    ummatImage: "https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?w=200&auto=format&fit=crop&q=60",
+    textSimilarity: 89,
+    imageSimilarity: 81,
+    overallScore: 85,
+    matchLevel: "High",
+    publishDate: "2026-07-05T18:45:00Z"
+  },
+  {
+    id: 4,
+    category: "Weather",
+    dawnHeadline: "PDMA issues high alert as heavy monsoon rains lash parts of Punjab and Sindh",
+    dawnImage: "https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?w=200&auto=format&fit=crop&q=60",
+    ummatHeadline: "پنجاب اور سندھ کے مختلف شہروں میں مون سون کی موسلا دھار بارشیں، الرٹ جاری",
+    ummatImage: "https://images.unsplash.com/photo-1428908728789-d2de25dbd4e2?w=200&auto=format&fit=crop&q=60",
+    textSimilarity: 88,
+    imageSimilarity: 86,
+    overallScore: 87,
+    matchLevel: "High",
+    publishDate: "2026-07-06T09:00:00Z"
+  },
+  {
+    id: 5,
+    category: "Technology",
+    dawnHeadline: "Pakistani fintech startup raises $5 million in seed funding to expand payments",
+    dawnImage: "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=200&auto=format&fit=crop&q=60",
+    ummatHeadline: "پاکستانی مالیاتی کمپنی نے ڈیجیٹل ادائیگیوں کے فروغ کے لیے 50 لاکھ ڈالر اکٹھے کر لیے",
+    ummatImage: "https://images.unsplash.com/photo-1563013544-824ae1d704d3?w=200&auto=format&fit=crop&q=60",
+    textSimilarity: 86,
+    imageSimilarity: 60,
+    overallScore: 73,
+    matchLevel: "Medium",
+    publishDate: "2026-07-04T11:20:00Z"
+  },
+  {
+    id: 6,
+    category: "Politics",
+    dawnHeadline: "Senate elections: Ruling coalition secures majority amid opposition boycott in KP",
+    dawnImage: "https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?w=200&auto=format&fit=crop&q=60",
+    ummatHeadline: "سینیٹ انتخابات: خیبر پختونخوا میں حزب اختلاف کے بائیکاٹ کے دوران حکمران اتحاد اکثریت حاصل کرنے میں کامیاب",
+    ummatImage: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=200&auto=format&fit=crop&q=60",
+    textSimilarity: 91,
+    imageSimilarity: 79,
+    overallScore: 85,
+    matchLevel: "High",
+    publishDate: "2026-07-05T15:30:00Z"
+  },
+  {
+    id: 7,
+    category: "Economy",
+    dawnHeadline: "Gold prices in Pakistan reach record high of Rs250,000 per tola",
+    dawnImage: "https://images.unsplash.com/photo-1610374792793-f016b77ca51a?w=200&auto=format&fit=crop&q=60",
+    ummatHeadline: "ملک بھر میں سونے کی قیمتوں میں غیر معمولی اضافہ، فی تولہ سونا ڈھائی لاکھ روپے کا ہو گیا",
+    ummatImage: "https://images.unsplash.com/photo-1618042164219-62c820f10723?w=200&auto=format&fit=crop&q=60",
+    textSimilarity: 88,
+    imageSimilarity: 70,
+    overallScore: 79,
+    matchLevel: "Medium",
+    publishDate: "2026-07-06T10:10:00Z"
+  },
+  {
+    id: 8,
+    category: "Economy",
+    dawnHeadline: "Federal government presents Rs18 trillion budget for fiscal year 2026-27",
+    dawnImage: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=200&auto=format&fit=crop&q=60",
+    ummatHeadline: "وفاقی حکومت کا سال 26-2025 کے لیے 180 کھرب روپے کا بجٹ پیش",
+    ummatImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&auto=format&fit=crop&q=60",
+    textSimilarity: 93,
+    imageSimilarity: 85,
+    overallScore: 89,
+    matchLevel: "High",
+    publishDate: "2026-07-03T16:00:00Z"
+  },
+  {
+    id: 9,
+    category: "Infrastructure",
+    dawnHeadline: "Karachi's civic authorities launch clean-up drive ahead of monsoon rains",
+    dawnImage: "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?w=200&auto=format&fit=crop&q=60",
+    ummatHeadline: "کراچی: مون سون سے قبل نالوں کی صفائی اور تجاوزات کے خلاف مہم شروع",
+    ummatImage: "https://images.unsplash.com/photo-1616401784845-180882ba9ba8?w=200&auto=format&fit=crop&q=60",
+    textSimilarity: 80,
+    imageSimilarity: 72,
+    overallScore: 76,
+    matchLevel: "Medium",
+    publishDate: "2026-07-04T08:15:00Z"
+  },
+  {
+    id: 10,
+    category: "Law",
+    dawnHeadline: "Supreme Court orders swift implementation of minority rights judgment",
+    dawnImage: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=200&auto=format&fit=crop&q=60",
+    ummatHeadline: "عدالت عظمیٰ کا اقلیتوں کے حقوق سے متعلق فیصلے پر عمل درآمد کا حکم",
+    ummatImage: "https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?w=200&auto=format&fit=crop&q=60",
+    textSimilarity: 86,
+    imageSimilarity: 30,
+    overallScore: 58,
+    matchLevel: "Low",
+    publishDate: "2026-07-02T13:40:00Z"
+  },
+  {
+    id: 11,
+    category: "Agriculture",
+    dawnHeadline: "Federal cabinet approves new digital agriculture policy to boost yield",
+    dawnImage: "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=200&auto=format&fit=crop&q=60",
+    ummatHeadline: "کابینہ کا اجلاس: زراعت کے شعبے میں جدت لانے کے لیے نئی پالیسی پر غور",
+    ummatImage: "https://images.unsplash.com/photo-1593113598332-cd288d649433?w=200&auto=format&fit=crop&q=60",
+    textSimilarity: 64,
+    imageSimilarity: 40,
+    overallScore: 52,
+    matchLevel: "Low",
+    publishDate: "2026-07-02T10:00:00Z"
+  },
+  {
+    id: 12,
+    category: "Technology",
+    dawnHeadline: "Pakistan's IT services exports grow by 15% in first quarter, reports SBP",
+    dawnImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=200&auto=format&fit=crop&q=60",
+    ummatHeadline: "آئی ٹی برآمدات میں ریکارڈ اضافہ، ملکی معیشت کے لیے مثبت اشارے",
+    ummatImage: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=200&auto=format&fit=crop&q=60",
+    textSimilarity: 70,
+    imageSimilarity: 48,
+    overallScore: 59,
+    matchLevel: "Low",
+    publishDate: "2026-07-03T11:45:00Z"
+  },
+  {
+    id: 13,
+    category: "Education",
+    dawnHeadline: "Sindh Education Department announces summer vacations for schools",
+    dawnImage: "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=200&auto=format&fit=crop&q=60",
+    ummatHeadline: "سندھ بھر میں تعلیمی اداروں کے لیے موسم گرما کی تعطیلات کا اعلان",
+    ummatImage: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=200&auto=format&fit=crop&q=60",
+    textSimilarity: 85,
+    imageSimilarity: 69,
+    overallScore: 77,
+    matchLevel: "Medium",
+    publishDate: "2026-07-04T14:00:00Z"
+  },
+  {
+    id: 14,
+    category: "Health",
+    dawnHeadline: "Health authorities report drop in dengue cases across Punjab province",
+    dawnImage: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=200&auto=format&fit=crop&q=60",
+    ummatHeadline: "پنجاب میں ڈینگی کے وار کم، محکمہ صحت نے اطمینان کا اظہار کر دیا",
+    ummatImage: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=200&auto=format&fit=crop&q=60",
+    textSimilarity: 82,
+    imageSimilarity: 62,
+    overallScore: 72,
+    matchLevel: "Medium",
+    publishDate: "2026-07-05T07:30:00Z"
+  },
+  {
+    id: 15,
+    category: "Diplomacy",
+    dawnHeadline: "PM Shehbaz meets world leaders at Shanghai Cooperation Organisation summit",
+    dawnImage: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=200&auto=format&fit=crop&q=60",
+    ummatHeadline: "وزیر اعظم شہباز شریف کی شنگھائی تعاون تنظیم کے اجلاس کے موقع پر عالمی رہنماؤں سے ملاقاتیں",
+    ummatImage: "https://images.unsplash.com/photo-1521791136368-1a8682707636?w=200&auto=format&fit=crop&q=60",
+    textSimilarity: 90,
+    imageSimilarity: 88,
+    overallScore: 89,
+    matchLevel: "High",
+    publishDate: "2026-07-06T15:20:00Z"
+  },
+  {
+    id: 16,
+    category: "Infrastructure",
+    dawnHeadline: "Lahore administration plans relocation of historic food street next month",
+    dawnImage: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=200&auto=format&fit=crop&q=60",
+    ummatHeadline: "لاہور میں تاریخی فوڈ اسٹریٹ کو متبادل جگہ منتقل کرنے کی تیاریاں",
+    ummatImage: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&auto=format&fit=crop&q=60",
+    textSimilarity: 75,
+    imageSimilarity: 35,
+    overallScore: 55,
+    matchLevel: "Low",
+    publishDate: "2026-07-01T17:10:00Z"
+  }
+];
+
+// Export if running in a module context, otherwise attach to window
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { MOCK_MATCHES };
+} else {
+  window.MOCK_MATCHES = MOCK_MATCHES;
+}

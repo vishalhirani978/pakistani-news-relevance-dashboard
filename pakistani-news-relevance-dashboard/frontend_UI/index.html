@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pakistani News Relevance Dashboard</title>
+  <meta name="description" content="AI-powered multimodal article matching and relevance analysis between Dawn (English) and Daily Ummat (Urdu) news sources.">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Flow Field Particle Background Canvas -->
+  <div id="particle-bg-container" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; overflow: hidden;">
+    <canvas id="particle-bg-canvas" style="display: block; width: 100%; height: 100%;"></canvas>
+  </div>
+
+  <div class="container">
+    <!-- HEADER -->
+    <header>
+      <div class="header-title-container" style="display: flex; align-items: center; gap: 14px;">
+        <img src="logo.png" alt="Logo" style="width: 48px; height: 48px; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); flex-shrink: 0;">
+        <div>
+          <h1 id="dashboard-title" style="margin-bottom: 0;">Pakistani News Relevance Dashboard</h1>
+          <p id="dashboard-subtitle" style="margin-top: 2px;">AI-powered multimodal article matching between Dawn and Daily Ummat</p>
+        </div>
+      </div>
+      
+      <div class="header-controls">
+        <!-- Backend Status Indicator (Online/Offline Toggle) -->
+        <button id="status-toggle-pill" class="status-pill online" title="Click to toggle simulated Backend Status">
+          <span class="status-dot"></span>
+          <span id="status-text">Backend: Online</span>
+        </button>
+
+        <!-- Refresh Button -->
+        <button id="btn-refresh" class="btn" title="Refresh dashboard data">
+          <i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>
+          <span>Refresh</span>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button id="btn-theme-toggle" class="btn btn-icon-only" title="Toggle Light/Dark Theme">
+          <span id="theme-icon-container" style="display: inline-flex; align-items: center; justify-content: center;">
+            <i data-lucide="moon" style="width: 18px; height: 18px;"></i>
+          </span>
+        </button>
+      </div>
+    </header>
+
+    <!-- LOADING STATE (KPI SKELETONS) -->
+    <div id="loading-kpis" class="kpi-section hidden">
+      <div class="card kpi-card skeleton-shimmer">
+        <div class="skeleton-text header"></div>
+        <div class="skeleton-number"></div>
+      </div>
+      <div class="card kpi-card skeleton-shimmer">
+        <div class="skeleton-text header"></div>
+        <div class="skeleton-number"></div>
+      </div>
+      <div class="card kpi-card skeleton-shimmer">
+        <div class="skeleton-text header"></div>
+        <div class="skeleton-number"></div>
+      </div>
+      <div class="card kpi-card skeleton-shimmer">
+        <div class="skeleton-text header"></div>
+        <div class="skeleton-number"></div>
+      </div>
+      <div class="card kpi-card skeleton-shimmer">
+        <div class="skeleton-text header"></div>
+        <div class="skeleton-number"></div>
+      </div>
+      <div class="card kpi-card skeleton-shimmer">
+        <div class="skeleton-text header"></div>
+        <div class="skeleton-number"></div>
+      </div>
+    </div>
+
+    <!-- STATISTICS SECTION -->
+    <div id="stats-section" class="kpi-section">
+      <!-- Total Articles -->
+      <div class="card kpi-card" id="kpi-total-articles">
+        <div class="kpi-header">
+          <span class="kpi-label">Total Articles</span>
+          <div class="kpi-icon-wrapper">
+            <i data-lucide="files" style="width: 20px; height: 20px;"></i>
+          </div>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-number" id="val-total-articles">-</div>
+        </div>
+        <div class="kpi-footer kpi-trend-neutral">
+          <i data-lucide="info" style="width: 12px; height: 12px;"></i>
+          <span>Across both sources</span>
+        </div>
+      </div>
+
+      <!-- Dawn Articles -->
+      <div class="card kpi-card" id="kpi-dawn-articles">
+        <div class="kpi-header">
+          <span class="kpi-label">Dawn Articles</span>
+          <div class="kpi-icon-wrapper">
+            <i data-lucide="file-text" style="width: 20px; height: 20px; color: #2563EB;"></i>
+          </div>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-number" id="val-dawn-articles">-</div>
+        </div>
+        <div class="kpi-footer kpi-trend-up">
+          <i data-lucide="trending-up" style="width: 12px; height: 12px;"></i>
+          <span>English source</span>
+        </div>
+      </div>
+
+      <!-- Daily Ummat Articles -->
+      <div class="card kpi-card" id="kpi-ummat-articles">
+        <div class="kpi-header">
+          <span class="kpi-label">Daily Ummat Articles</span>
+          <div class="kpi-icon-wrapper">
+            <i data-lucide="file-text" style="width: 20px; height: 20px; color: #10B981;"></i>
+          </div>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-number" id="val-ummat-articles">-</div>
+        </div>
+        <div class="kpi-footer kpi-trend-up">
+          <i data-lucide="trending-up" style="width: 12px; height: 12px;"></i>
+          <span>Urdu source</span>
+        </div>
+      </div>
+
+      <!-- Total Matches -->
+      <div class="card kpi-card" id="kpi-total-matches">
+        <div class="kpi-header">
+          <span class="kpi-label">Total Matches</span>
+          <div class="kpi-icon-wrapper">
+            <i data-lucide="git-compare" style="width: 20px; height: 20px; color: #8B5CF6;"></i>
+          </div>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-number" id="val-total-matches">-</div>
+        </div>
+        <div class="kpi-footer kpi-trend-up">
+          <i data-lucide="check-circle" style="width: 12px; height: 12px;"></i>
+          <span>Active pairings</span>
+        </div>
+      </div>
+
+      <!-- Medium Matches -->
+      <div class="card kpi-card" id="kpi-medium-matches">
+        <div class="kpi-header">
+          <span class="kpi-label">Medium Matches</span>
+          <div class="kpi-icon-wrapper">
+            <i data-lucide="alert-circle" style="width: 20px; height: 20px; color: #F59E0B;"></i>
+          </div>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-number" id="val-medium-matches">-</div>
+        </div>
+        <div class="kpi-footer kpi-trend-neutral">
+          <i data-lucide="percent" style="width: 12px; height: 12px;"></i>
+          <span id="val-medium-percent">0% of total</span>
+        </div>
+      </div>
+
+      <!-- Low Matches -->
+      <div class="card kpi-card" id="kpi-low-matches">
+        <div class="kpi-header">
+          <span class="kpi-label">Low Matches</span>
+          <div class="kpi-icon-wrapper">
+            <i data-lucide="x-circle" style="width: 20px; height: 20px; color: #EF4444;"></i>
+          </div>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-number" id="val-low-matches">-</div>
+        </div>
+        <div class="kpi-footer kpi-trend-neutral">
+          <i data-lucide="percent" style="width: 12px; height: 12px;"></i>
+          <span id="val-low-percent">0% of total</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADING STATE (CHARTS SKELETONS) -->
+    <div id="loading-charts" class="analytics-section hidden">
+      <div class="card chart-card skeleton-shimmer">
+        <div class="skeleton-text header"></div>
+        <div class="skeleton-chart"></div>
+      </div>
+      <div class="card chart-card skeleton-shimmer">
+        <div class="skeleton-text header"></div>
+        <div class="skeleton-chart"></div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS SECTION -->
+    <div id="analytics-section" class="analytics-section">
+      <!-- Pie Chart: Match Levels -->
+      <div class="card chart-card">
+        <div class="chart-card-header">
+          <div>
+            <h2 class="chart-card-title">Match Level Distribution</h2>
+            <span class="chart-card-subtitle">AI-categorized relevance pairings</span>
+          </div>
+          <i data-lucide="pie-chart" style="width: 18px; height: 18px; color: var(--text-muted);"></i>
+        </div>
+        <div class="chart-canvas-container">
+          <canvas id="pieChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Bar Chart: Source Comparison -->
+      <div class="card chart-card">
+        <div class="chart-card-header">
+          <div>
+            <h2 class="chart-card-title">Article Volume by Category</h2>
+            <span class="chart-card-subtitle">Distribution of coverage across topics</span>
+          </div>
+          <i data-lucide="bar-chart-2" style="width: 18px; height: 18px; color: var(--text-muted);"></i>
+        </div>
+        <div class="chart-canvas-container">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- RELEVANCE CALCULATOR SECTION -->
+    <div id="relevance-calc-section" class="calc-section">
+      <div class="card calc-card">
+        <div class="calc-header">
+          <div>
+            <h2 class="chart-card-title">Relevance Calculator</h2>
+            <span class="chart-card-subtitle">Compare two headlines and get an AI-powered relevance score</span>
+          </div>
+          <i data-lucide="beaker" style="width: 20px; height: 20px; color: var(--text-muted);"></i>
+        </div>
+        <div class="calc-body">
+          <div class="calc-inputs">
+            <div class="calc-field">
+              <label for="calc-heading" class="filter-label">Heading</label>
+              <input type="text" id="calc-heading" class="filter-control" placeholder="e.g. Pakistan announces new economic policy">
+            </div>
+            <div class="calc-field">
+              <label for="calc-subheading" class="filter-label">Sub-Heading</label>
+              <input type="text" id="calc-subheading" class="filter-control" placeholder="e.g. Government unveils comprehensive fiscal reforms">
+            </div>
+            <div class="calc-field">
+              <label for="calc-image" class="filter-label">Image URL <span style="font-weight: 400; color: var(--text-muted);">(optional)</span></label>
+              <input type="url" id="calc-image" class="filter-control" placeholder="https://example.com/image.jpg">
+            </div>
+          </div>
+          <div class="calc-actions">
+            <button id="btn-calc-relevance" class="btn btn-primary">
+              <i data-lucide="calculator" style="width: 16px; height: 16px;"></i>
+              <span>Calculate Relevance</span>
+            </button>
+          </div>
+        </div>
+        <!-- Results area (hidden initially) -->
+        <div id="calc-results" class="calc-results hidden">
+          <div class="calc-results-divider"></div>
+          <div class="calc-results-body">
+            <div class="calc-result-item">
+              <span class="calc-result-label">Text Similarity</span>
+              <div class="calc-score-bar-wrapper">
+                <span class="calc-score-val" id="calc-text-sim">0%</span>
+                <div class="similarity-bar-bg">
+                  <div class="similarity-bar-fill calc-fill" id="calc-text-fill" style="width: 0%;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="calc-result-item">
+              <span class="calc-result-label">Overall Relevance</span>
+              <div class="calc-score-bar-wrapper">
+                <span class="calc-score-val" id="calc-overall-score">0%</span>
+                <div class="similarity-bar-bg">
+                  <div class="similarity-bar-fill calc-fill" id="calc-overall-fill" style="width: 0%;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="calc-result-item">
+              <span class="calc-result-label">Match Level</span>
+              <span class="match-badge" id="calc-match-level">Not available</span>
+            </div>
+          </div>
+          <div id="calc-image-preview" class="calc-image-preview hidden">
+            <img id="calc-preview-img" src="" alt="Uploaded image preview">
+          </div>
+        </div>
+        <!-- Loading spinner for calculator -->
+        <div id="calc-loading" class="calc-loading hidden">
+          <div class="calc-spinner"></div>
+          <span>Computing relevance score...</span>
+        </div>
+        <!-- Error message for calculator -->
+        <div id="calc-error" class="calc-error hidden">
+          <i data-lucide="alert-triangle" style="width: 16px; height: 16px;"></i>
+          <span id="calc-error-text">An error occurred. Please try again.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEARCH & FILTER TOOLBAR -->
+    <section class="filter-toolbar">
+      <!-- Search Bar -->
+      <div class="filter-group search">
+        <label for="filter-search" class="filter-label">Search Headlines</label>
+        <div style="position: relative; display: flex; align-items: center;">
+          <i data-lucide="search" style="position: absolute; left: 12px; width: 16px; height: 16px; color: var(--text-muted);"></i>
+          <input type="text" id="filter-search" class="filter-control" placeholder="Search Dawn or Ummat headlines..." style="padding-left: 38px;">
+        </div>
+      </div>
+
+      <!-- Match Level Dropdown -->
+      <div class="filter-group dropdown">
+        <label for="filter-match-level" class="filter-label">Match Level</label>
+        <select id="filter-match-level" class="filter-control">
+          <option value="All">All Levels</option>
+          <option value="High">High Match</option>
+          <option value="Medium">Medium Match</option>
+          <option value="Low">Low Match</option>
+        </select>
+      </div>
+
+      <!-- Relevance Slider -->
+      <div class="filter-group range">
+        <label for="filter-min-relevance" class="filter-label">Min Relevance Score</label>
+        <div class="range-slider-wrapper">
+          <input type="range" id="filter-min-relevance" class="filter-control" min="0" max="100" value="0">
+          <span id="relevance-slider-val" class="range-val">0%</span>
+        </div>
+      </div>
+
+      <!-- Sort Dropdown -->
+      <div class="filter-group dropdown">
+        <label for="filter-sort" class="filter-label">Sort By</label>
+        <select id="filter-sort" class="filter-control">
+          <option value="highest">Highest Score</option>
+          <option value="lowest">Lowest Score</option>
+          <option value="newest">Newest Analysis</option>
+          <option value="oldest">Oldest Analysis</option>
+        </select>
+      </div>
+
+      <!-- Reset Button -->
+      <button id="btn-reset-filters" class="btn btn-reset" title="Reset all search queries and sliders">
+        <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i>
+        <span>Reset</span>
+      </button>
+    </section>
+
+    <!-- LOADING STATE (TABLE SKELETON) -->
+    <div id="loading-table" class="card table-card skeleton-shimmer hidden" style="height: 400px; padding: 24px;">
+      <div class="skeleton-text header" style="width: 200px; margin-bottom: 20px;"></div>
+      <div class="skeleton-text" style="width: 100%; height: 30px; margin-bottom: 12px; border-radius: 4px;"></div>
+      <div class="skeleton-text" style="width: 100%; height: 50px; margin-bottom: 12px; border-radius: 4px;"></div>
+      <div class="skeleton-text" style="width: 100%; height: 50px; margin-bottom: 12px; border-radius: 4px;"></div>
+      <div class="skeleton-text" style="width: 100%; height: 50px; margin-bottom: 12px; border-radius: 4px;"></div>
+      <div class="skeleton-text" style="width: 100%; height: 50px; border-radius: 4px;"></div>
+    </div>
+
+    <!-- ERROR STATE CARD -->
+    <div id="error-card" class="error-screen hidden animate-fade-in">
+      <i data-lucide="cloud-off" class="error-illustration"></i>
+      <h2 class="error-title">Simulated Connection Error</h2>
+      <p class="error-message">
+        The Dawn & Daily Ummat analysis backend could not be reached. 
+        Please check if the local matching service is active or retry the connection.
+      </p>
+      <button id="btn-error-retry" class="btn btn-primary" style="margin-top: 10px;">
+        <i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>
+        <span>Retry Connection</span>
+      </button>
+    </div>
+
+    <!-- MAIN TABLE SECTION -->
+    <div id="table-card" class="card table-card">
+      <div class="table-card-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <h2 class="table-info-title">Multimodal Matches</h2>
+          <span id="results-count" class="table-info-count">0 matches found</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">
+          * Score calculated from text embeddings and visual features
+        </div>
+      </div>
+      
+      <!-- Table Wrapper for scrolling -->
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 25%;">Dawn Article (English)</th>
+              <th style="width: 25%;">Daily Ummat Article (Urdu)</th>
+              <th class="sortable" id="th-text-sim" style="width: 13%;">
+                Text Sim <span class="sort-icon-wrapper"><i data-lucide="chevrons-up-down" style="width: 12px; height: 12px;"></i></span>
+              </th>
+              <th class="sortable" id="th-image-sim" style="width: 13%;">
+                Image Sim <span class="sort-icon-wrapper"><i data-lucide="chevrons-up-down" style="width: 12px; height: 12px;"></i></span>
+              </th>
+              <th class="sortable" id="th-overall" style="width: 12%;">
+                Overall Score <span class="sort-icon-wrapper"><i data-lucide="chevrons-up-down" style="width: 12px; height: 12px;"></i></span>
+              </th>
+              <th style="width: 12%;">Match Level</th>
+            </tr>
+          </thead>
+          <tbody id="matches-table-body">
+            <!-- Dynamic rows will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Footer -->
+      <div class="pagination-container">
+        <div id="pagination-info" class="pagination-info">
+          Showing 1 to 5 of 16 matches
+        </div>
+        <div class="pagination-controls">
+          <button id="btn-prev-page" class="btn btn-sm">
+            <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+            <span>Previous</span>
+          </button>
+          <button id="btn-next-page" class="btn btn-sm">
+            <span>Next</span>
+            <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>AI-powered multimodal news relevance analysis &copy; 2026. Built with modern HSL styles.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

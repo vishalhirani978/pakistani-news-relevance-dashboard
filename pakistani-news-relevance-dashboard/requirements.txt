@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+sentence-transformers
+scikit-learn
+opencv-python
+Pillow
+torch
+torchvision
+beautifulsoup4
+requests
+numpy
+deep-translator
+pandas
+schedule
