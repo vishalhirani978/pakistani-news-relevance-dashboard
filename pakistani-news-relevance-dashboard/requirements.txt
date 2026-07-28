@@ -2,7 +2,7 @@ fastapi
 uvicorn[standard]
 sentence-transformers
 scikit-learn
-opencv-python
+opencv-python-headless
 Pillow
 torch
 torchvision

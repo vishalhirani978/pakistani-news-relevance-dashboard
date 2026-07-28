@@ -9,19 +9,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const analyticsSection = document.getElementById("analytics-section");
   const tableCard = document.getElementById("table-card");
   const errorCard = document.getElementById("error-card");
-  
+
   // Skeletons
   const loadingKpis = document.getElementById("loading-kpis");
   const loadingCharts = document.getElementById("loading-charts");
   const loadingTable = document.getElementById("loading-table");
-  
+
   // Controls
   const statusTogglePill = document.getElementById("status-toggle-pill");
   const statusText = document.getElementById("status-text");
   const btnRefresh = document.getElementById("btn-refresh");
   const btnThemeToggle = document.getElementById("btn-theme-toggle");
   const btnErrorRetry = document.getElementById("btn-error-retry");
-  
+
   // Filters
   const filterSearch = document.getElementById("filter-search");
   const filterMatchLevel = document.getElementById("filter-match-level");
@@ -29,14 +29,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const relevanceSliderVal = document.getElementById("relevance-slider-val");
   const filterSort = document.getElementById("filter-sort");
   const btnResetFilters = document.getElementById("btn-reset-filters");
-  
+
   // Table & Pagination
   const matchesTableBody = document.getElementById("matches-table-body");
   const resultsCount = document.getElementById("results-count");
   const paginationInfo = document.getElementById("pagination-info");
   const btnPrevPage = document.getElementById("btn-prev-page");
   const btnNextPage = document.getElementById("btn-next-page");
-  
+
   // Table Sort Headers
   const thTextSim = document.getElementById("th-text-sim");
   const thImageSim = document.getElementById("th-image-sim");
@@ -48,10 +48,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let dashboardStats = {};
   let currentPage = 1;
   const rowsPerPage = 5;
-  
+
   let isOnline = true;
   let isDarkMode = false;
-  
+
   // Sorting state for table headers
   let activeHeaderSort = {
     field: null, // 'textSimilarity', 'imageSimilarity', 'overallScore'
@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Initialization ---
   // FastAPI backend runs on port 8000; frontend static server on port 5500.
   // CORS is open (*) on the backend so hostname mismatches don't matter.
-  const BACKEND_BASE_URL = window.BACKEND_BASE_URL || "http://127.0.0.1:8000";
+  const BACKEND_BASE_URL = window.BACKEND_BASE_URL || "https://despite-flick-magnifier.ngrok-free.dev";
 
   function escapeHTML(str) {
     if (!str) return "";
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function init() {
     // Check local storage or system preference for dark mode
     if (localStorage.getItem("theme") === "dark" ||
-        (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+      (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
       enableDarkMode();
     } else {
       disableDarkMode();
@@ -100,12 +100,12 @@ document.addEventListener("DOMContentLoaded", () => {
   function bindEvents() {
     // Theme Toggle Click
     btnThemeToggle.addEventListener("click", toggleTheme);
-    
+
     // Status Toggle (Online/Offline) Click
     statusTogglePill.addEventListener("click", () => {
       toggleBackendStatus();
     });
-    
+
     // Retry button in error screen
     btnErrorRetry.addEventListener("click", () => {
       toggleBackendStatus(true);
@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
       currentPage = 1;
       applyFiltersAndRender();
     });
-    
+
     filterSort.addEventListener("change", () => {
       currentPage = 1;
       // Reset active header sorts when using dropdown sorting
@@ -280,8 +280,8 @@ document.addEventListener("DOMContentLoaded", () => {
           matchLevel: m.match_level,
           publishDate: m.publishDate || null
         }));
-        
-        dashboardStats= statsJson;
+
+        dashboardStats = statsJson;
         applyStatistics(statsJson);
 
         // Show normal UI, hide skeletons
@@ -324,7 +324,7 @@ document.addEventListener("DOMContentLoaded", () => {
       loadingKpis.classList.remove("hidden");
       loadingCharts.classList.remove("hidden");
       loadingTable.classList.remove("hidden");
-      
+
       // Main UI: OFF
       statsSection.classList.add("hidden");
       analyticsSection.classList.add("hidden");
@@ -333,7 +333,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       // Skeletons: OFF
       hideAllSkeletons();
-      
+
       // Main UI: ON
       statsSection.classList.remove("hidden");
       analyticsSection.classList.remove("hidden");
@@ -354,14 +354,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const minRelevance = parseInt(filterMinRelevance.value, 10);
     const sortVal = filterSort.value;
 
-      // Filter
+    // Filter
     filteredMatches = allMatches.filter(item => {
       const cat = item.category || "";
-      const matchesQuery = !query || 
+      const matchesQuery = !query ||
         (item.dawnHeadline || "").toLowerCase().includes(query) ||
         (item.ummatHeadline || "").toLowerCase().includes(query) ||
         cat.toLowerCase().includes(query);
-        
+
       const matchesLevel = matchLevel === "All" || item.matchLevel === matchLevel;
       const matchesRelevance = item.overallScore >= minRelevance;
 
@@ -405,45 +405,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateKPIs() {
 
-  // Static totals from backend
-  document.getElementById("val-total-articles").textContent =
-    dashboardStats.total_articles ?? "-";
+    // Static totals from backend
+    document.getElementById("val-total-articles").textContent =
+      dashboardStats.total_articles ?? "-";
 
-  document.getElementById("val-dawn-articles").textContent =
-    dashboardStats.dawn_articles ?? "-";
+    document.getElementById("val-dawn-articles").textContent =
+      dashboardStats.dawn_articles ?? "-";
 
-  document.getElementById("val-ummat-articles").textContent =
-    dashboardStats.ummat_articles ?? "-";
+    document.getElementById("val-ummat-articles").textContent =
+      dashboardStats.ummat_articles ?? "-";
 
-  document.getElementById("val-total-matches").textContent =
-    dashboardStats.total_matches ?? "-";
+    document.getElementById("val-total-matches").textContent =
+      dashboardStats.total_matches ?? "-";
 
-  // Dynamic values based on current filters
-  const matchesCount = filteredMatches.length;
+    // Dynamic values based on current filters
+    const matchesCount = filteredMatches.length;
 
-  const mediumCount = filteredMatches.filter(
-    m => m.matchLevel === "Medium"
-  ).length;
+    const mediumCount = filteredMatches.filter(
+      m => m.matchLevel === "Medium"
+    ).length;
 
-  const lowCount = filteredMatches.filter(
-    m => m.matchLevel === "Low"
-  ).length;
+    const lowCount = filteredMatches.filter(
+      m => m.matchLevel === "Low"
+    ).length;
 
-  document.getElementById("val-medium-matches").textContent = mediumCount;
-  document.getElementById("val-low-matches").textContent = lowCount;
+    document.getElementById("val-medium-matches").textContent = mediumCount;
+    document.getElementById("val-low-matches").textContent = lowCount;
 
-  const mediumPercent =
-    matchesCount ? Math.round((mediumCount / matchesCount) * 100) : 0;
+    const mediumPercent =
+      matchesCount ? Math.round((mediumCount / matchesCount) * 100) : 0;
 
-  const lowPercent =
-    matchesCount ? Math.round((lowCount / matchesCount) * 100) : 0;
+    const lowPercent =
+      matchesCount ? Math.round((lowCount / matchesCount) * 100) : 0;
 
-  document.getElementById("val-medium-percent").textContent =
-    `${mediumPercent}% of current matches`;
+    document.getElementById("val-medium-percent").textContent =
+      `${mediumPercent}% of current matches`;
 
-  document.getElementById("val-low-percent").textContent =
-    `${lowPercent}% of current matches`;
-}
+    document.getElementById("val-low-percent").textContent =
+      `${lowPercent}% of current matches`;
+  }
 
   // --- Reset Filter Handler ---
   function resetFilters() {
@@ -496,16 +496,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Table Rendering with Pagination ---
   function renderPaginatedTable() {
     resultsCount.textContent = `${filteredMatches.length} matches found`;
-    
+
     // Pagination math
     const totalItems = filteredMatches.length;
     const maxPages = Math.ceil(totalItems / rowsPerPage) || 1;
-    
+
     if (currentPage > maxPages) currentPage = maxPages;
-    
+
     const startIndex = (currentPage - 1) * rowsPerPage;
     const endIndex = Math.min(startIndex + rowsPerPage, totalItems);
-    
+
     const paginatedItems = filteredMatches.slice(startIndex, endIndex);
 
     // Render Table Rows
@@ -522,7 +522,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </tr>
       `;
       lucide.createIcons();
-      
+
       // Update pagination info
       paginationInfo.textContent = `Showing 0 to 0 of 0 matches`;
       btnPrevPage.disabled = true;
@@ -537,7 +537,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const safeUmmatHL = escapeHTML(item.ummatHeadline);
       const safeDawnImg = escapeHTML(item.dawnImage || "");
       const safeUmmatImg = escapeHTML(item.ummatImage || "");
-      
+
       rowsHTML += `
         <tr>
           <!-- Dawn Article -->
@@ -579,21 +579,18 @@ document.addEventListener("DOMContentLoaded", () => {
           <!-- Overall Score -->
           <td>
             <div class="overall-score-badge" style="
-              border-color: ${
-                item.matchLevel === 'High' ? 'var(--color-high-text)' :
-                item.matchLevel === 'Medium' ? 'var(--color-medium-text)' :
-                'var(--color-low-text)'
-              };
-              background-color: ${
-                item.matchLevel === 'High' ? 'var(--color-high-bg)' :
-                item.matchLevel === 'Medium' ? 'var(--color-medium-bg)' :
-                'var(--color-low-bg)'
-              };
-              color: ${
-                item.matchLevel === 'High' ? 'var(--color-high-text)' :
-                item.matchLevel === 'Medium' ? 'var(--color-medium-text)' :
-                'var(--color-low-text)'
-              };
+              border-color: ${item.matchLevel === 'High' ? 'var(--color-high-text)' :
+          item.matchLevel === 'Medium' ? 'var(--color-medium-text)' :
+            'var(--color-low-text)'
+        };
+              background-color: ${item.matchLevel === 'High' ? 'var(--color-high-bg)' :
+          item.matchLevel === 'Medium' ? 'var(--color-medium-bg)' :
+            'var(--color-low-bg)'
+        };
+              color: ${item.matchLevel === 'High' ? 'var(--color-high-text)' :
+          item.matchLevel === 'Medium' ? 'var(--color-medium-text)' :
+            'var(--color-low-text)'
+        };
             ">
               ${item.overallScore}
             </div>
@@ -623,10 +620,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Update pagination controls
     paginationInfo.textContent = `Showing ${startIndex + 1} to ${endIndex} of ${totalItems} matches`;
-    
+
     btnPrevPage.disabled = currentPage === 1;
     btnNextPage.disabled = currentPage === maxPages;
-    
+
     lucide.createIcons();
   }
 
@@ -680,7 +677,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 2. Render Pie Chart
     const ctxPie = document.getElementById("pieChart").getContext("2d");
-    
+
     // High-fidelity SaaS look colors (Stripe/Linear styled palette)
     const pieColors = {
       light: ["#10B981", "#F59E0B", "#EF4444"], // Emerald, Amber, Red
@@ -730,7 +727,7 @@ document.addEventListener("DOMContentLoaded", () => {
             padding: 10,
             displayColors: true,
             callbacks: {
-              label: function(context) {
+              label: function (context) {
                 if (!hasPieData) return " No data available";
                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
                 const val = context.raw;
