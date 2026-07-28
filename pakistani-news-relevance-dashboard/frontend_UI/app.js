@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Initialization ---
   // FastAPI backend runs on port 8000; frontend static server on port 5500.
   // CORS is open (*) on the backend so hostname mismatches don't matter.
-  const BACKEND_BASE_URL = window.BACKEND_BASE_URL || "https://despite-flick-magnifier.ngrok-free.dev";
+  const BACKEND_BASE_URL = window.BACKEND_BASE_URL || "http://127.0.0.1:8000";
 
   function escapeHTML(str) {
     if (!str) return "";
