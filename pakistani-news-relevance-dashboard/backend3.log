@@ -1,0 +1,84 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Database initialized successfully.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|##########| 103/103 [00:00<00:00, 9763.23it/s]
+[1mBertModel LOAD REPORT[0m from: sentence-transformers/all-MiniLM-L6-v2
+Key                     | Status     |  | 
+------------------------+------------+--+-
+embeddings.position_ids | UNEXPECTED |  | 
+
+[3mNotes:
+- UNEXPECTED[3m	:can be ignored when loading from different task/architecture; not ok if you expect identical arch.[0m
+INFO:     Started server process [2368]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:49603 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49605 - "GET /statistics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49606 - "GET /live HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49616 - "GET /matches/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49617 - "GET /statistics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49618 - "GET /images/dawn_152.webp HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49619 - "GET /images/ummat_64.webp HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49620 - "GET /images/dawn_21.webp HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49620 - "GET /images/ummat_73.webp HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49619 - "GET /images/dawn_165.webp HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49619 - "GET /images/ummat_592.webp HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49619 - "GET /images/dawn_225.webp HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49620 - "GET /images/dawn_91.webp HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49617 - "GET /statistics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49616 - "GET /matches/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49627 - "GET /matches/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49628 - "GET /statistics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49630 - "GET /images/ummat_64.webp HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49631 - "GET /images/dawn_152.webp HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49632 - "GET /images/dawn_21.webp HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49633 - "GET /images/ummat_73.webp HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49635 - "GET /images/ummat_592.webp HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49634 - "GET /images/dawn_165.webp HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49635 - "GET /images/dawn_225.webp HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49634 - "GET /images/dawn_91.webp HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49652 - "GET /images/dawn_9.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49651 - "GET /images/dawn_49.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49648 - "GET /images/dawn_280.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49649 - "GET /images/dawn_107.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49650 - "GET /images/ummat_66.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49653 - "GET /images/dawn_79.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49654 - "GET /images/article_2.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49655 - "GET /images/dawn_102.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49658 - "GET /images/article_53.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49657 - "GET /images/article_37.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49656 - "GET /images/dawn_42.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53671 - "OPTIONS /relevance/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53671 - "POST /relevance/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65357 - "GET /statistics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65358 - "GET /matches/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65359 - "GET /images/dawn_152.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65364 - "GET /images/ummat_64.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65363 - "GET /images/dawn_21.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65361 - "GET /images/dawn_165.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65362 - "GET /images/ummat_73.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65360 - "GET /images/ummat_592.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65361 - "GET /images/dawn_225.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65359 - "GET /images/dawn_91.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65379 - "OPTIONS /relevance/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65379 - "POST /relevance/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65383 - "GET /statistics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65380 - "GET /matches/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65385 - "GET /images/dawn_110.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65384 - "GET /images/article_54.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65386 - "GET /images/article_119.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65387 - "GET /images/dawn_307.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65393 - "GET /images/ummat_66.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65391 - "GET /images/dawn_280.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65390 - "GET /images/dawn_9.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65392 - "GET /images/dawn_107.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65389 - "GET /images/dawn_49.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65388 - "GET /images/dawn_79.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65393 - "GET /images/article_2.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65388 - "GET /images/dawn_102.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65389 - "GET /images/dawn_42.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65390 - "GET /images/article_53.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65392 - "GET /images/article_37.webp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65394 - "POST /relevance/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65449 - "GET /statistics/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65450 - "GET /matches/ HTTP/1.1" 200 OK
